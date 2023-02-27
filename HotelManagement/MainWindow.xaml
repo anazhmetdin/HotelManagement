@@ -1,0 +1,52 @@
+﻿<Window x:Class="HotelManagement.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HotelManagement"
+        mc:Ignorable="d"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        MouseDown="Window_MouseDown"
+        BorderBrush="CadetBlue"
+        BorderThickness="0 10 0 0"
+        Title="" Height="450" Width="550">
+
+    <Grid>
+        <Label Content="Login" HorizontalAlignment="Left"
+               Margin="10,10,0,0" VerticalAlignment="Top"
+               FontSize="24" FontFamily="Verdana"/>
+
+        <Button Content="x" Style="{StaticResource WindowControl}"
+                Margin="505,0,10,415" Click="Close"/>
+        <Button Content="-" FontSize="20" Margin="470,0,45,415"
+                Style="{StaticResource WindowControl}"
+                Click="Minimize"/>
+
+        <TextBlock x:Name="UsernameLabel" TextWrapping="Wrap"
+                   Text="Username" FontSize="14"
+                   Margin="164,146,309,274"/>
+        <TextBox Name="Username" Margin="164,166,164,244"
+                 Padding="5 1" FontSize="18"
+                 VerticalScrollBarVisibility="Hidden"
+                 LostFocus="Username_LostFocus"
+                 GotFocus="Username_GotFocus"/>
+        <TextBlock x:Name="UsernameHint" Text="Username"
+                   MouseDown="UsernameHint_MouseDown" Cursor="IBeam"
+                   Margin="171,172,302,248" FontSize="14" Foreground="#FF454545"/>
+
+        <TextBlock x:Name="PasswordLabel" TextWrapping="Wrap"
+                   Text="Password" FontSize="14"
+                   Margin="164,209,309,211"/>
+        <PasswordBox Name="Password" Margin="164,229,164,181"
+                 Padding="5 1" FontSize="18"
+                 GotFocus="Password_GotFocus"
+                 LostFocus="Password_LostFocus"/>
+        <TextBlock Text="Password"
+                   Cursor="IBeam" MouseDown="PasswordHint_MouseDown"
+                   Name="PasswordHint" Foreground="#FF454545"
+                   Margin="171,234,302,186" FontSize="14"/>
+        
+        <Button Content="Sign in" Margin="164,296,164,112"/>
+    </Grid>
+</Window>
