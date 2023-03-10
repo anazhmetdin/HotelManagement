@@ -5,48 +5,55 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HotelManagement"
         mc:Ignorable="d"
-        ResizeMode="NoResize"
-        WindowStyle="None"
-        MouseDown="Window_MouseDown"
+        Style="{StaticResource WindowStyle}"
         BorderBrush="CadetBlue"
-        BorderThickness="0 10 0 0"
         Title="" Height="450" Width="550">
+
+    <Window.Resources>
+        <Style x:Key="Hint" TargetType="TextBlock">
+            <Setter Property="Cursor" Value="IBeam"/>
+            <Setter Property="Foreground" Value="#FF454545"/>
+            <Setter Property="FontSize" Value="14"/>
+            <EventSetter Event="MouseDown" Handler="Hint_MouseDown"/>
+        </Style>
+
+        <Style x:Key="LoginInput" TargetType="Control"
+               BasedOn="{StaticResource FormInput}">
+            <EventSetter Event="GotFocus" Handler="Input_GotFocus"/>
+            <EventSetter Event="LostFocus" Handler="Input_LostFocus"/>
+        </Style>
+    </Window.Resources>
 
     <Grid>
         <Label Content="Login" HorizontalAlignment="Left"
                Margin="10,10,0,0" VerticalAlignment="Top"
                FontSize="24" FontFamily="Verdana"/>
 
-        <Button Content="x" Style="{StaticResource WindowControl}"
-                Margin="505,0,10,415" Click="Close"/>
-        <Button Content="-" FontSize="20" Margin="470,0,45,415"
-                Style="{StaticResource WindowControl}"
-                Click="Minimize"/>
+        <Button Style="{StaticResource WindowClose}"
+                Margin="505,0,10,415"/>
+        <Button Style="{StaticResource WindowMinimize}"
+                Margin="470,0,45,415"/>
 
-        <TextBlock x:Name="UsernameLabel" TextWrapping="Wrap"
-                   Text="Username" FontSize="14"
-                   Margin="164,146,309,274"/>
-        <TextBox Name="Username" Margin="164,166,164,244"
-                 Padding="5 1" FontSize="18"
-                 VerticalScrollBarVisibility="Hidden"
-                 LostFocus="Username_LostFocus"
-                 GotFocus="Username_GotFocus"/>
-        <TextBlock x:Name="UsernameHint" Text="Username"
-                   MouseDown="UsernameHint_MouseDown" Cursor="IBeam"
-                   Margin="171,172,302,248" FontSize="14" Foreground="#FF454545"/>
+        <Grid>
+            <TextBlock Text="Username" Margin="164,146,309,274"
+                       Visibility="Hidden"/>
+            <TextBox Style="{StaticResource LoginInput}"
+                     Name="Username" Margin="164,166,164,244"/>
+            <TextBlock Style="{StaticResource Hint}"
+                       Text="Username" Margin="171,172,302,248"/>            
+        </Grid>
 
-        <TextBlock x:Name="PasswordLabel" TextWrapping="Wrap"
-                   Text="Password" FontSize="14"
-                   Margin="164,209,309,211"/>
-        <PasswordBox Name="Password" Margin="164,229,164,181"
-                 Padding="5 1" FontSize="18"
-                 GotFocus="Password_GotFocus"
-                 LostFocus="Password_LostFocus"/>
-        <TextBlock Text="Password"
-                   Cursor="IBeam" MouseDown="PasswordHint_MouseDown"
-                   Name="PasswordHint" Foreground="#FF454545"
-                   Margin="171,234,302,186" FontSize="14"/>
+
+        <Grid>
+            <TextBlock Text="Password" Margin="164,209,309,211"
+                       Visibility="Hidden"/>
+            <PasswordBox Style="{StaticResource LoginInput}" 
+                         Name="Password" Margin="164,229,164,181"/>
+            <TextBlock Style="{StaticResource Hint}"
+                       Text="Password" Margin="171,234,302,186"/>
+        </Grid>
         
-        <Button Content="Sign in" Margin="164,296,164,112"/>
+        <Button Name="SignInBtn" Content="Sign in" Margin="164,296,164,112"
+                Click="SignInBtn_Click"/>
     </Grid>
 </Window>

@@ -4,6 +4,13 @@
              xmlns:local="clr-namespace:HotelManagement"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        
+        <Style x:Key="WindowStyle" TargetType="Window">
+            <Setter Property="ResizeMode" Value="NoResize"/>
+            <Setter Property="WindowStyle" Value="None"/>
+            <Setter Property="BorderThickness" Value="0 10 0 0"/>
+        </Style>
+
         <Style x:Key="WindowControl" TargetType="Button">
             <Setter Property="BorderBrush" Value="{x:Null}"/>
             <Setter Property="Background" Value="{x:Null}"/>
@@ -13,7 +20,26 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <Style x:Key="WindowClose" TargetType="Button"
+               BasedOn="{StaticResource WindowControl}">
+            <EventSetter Event="Click" Handler="Close"/>
+            <Setter Property="Content" Value="x"/>
             <Setter Property="FontSize" Value="16"/>
         </Style>
+
+        <Style x:Key="WindowMinimize" TargetType="Button"
+               BasedOn="{StaticResource WindowControl}">
+            <EventSetter Event="Click" Handler="Minimize"/>
+            <Setter Property="Content" Value="-"/>
+            <Setter Property="FontSize" Value="20"/>
+        </Style>
+
+        <Style x:Key="FormInput" TargetType="Control">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Padding" Value="5 1"/>
+        </Style>
+        
     </Application.Resources>
 </Application>

@@ -1,4 +1,6 @@
 ﻿using DB;
+using DB.Context;
+using DB.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using UI;
 
 namespace HotelManagement
 {
@@ -24,64 +27,65 @@ namespace HotelManagement
         public MainWindow()
         {
             InitializeComponent();
-            UsernameLabel.Visibility = Visibility.Hidden;
-            PasswordLabel.Visibility = Visibility.Hidden;
         }
 
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        private void Hint_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left)
-                this.DragMove();
-        }
-
-        private void Close(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        private void Minimize(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void UsernameHint_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            Username.Focus();
-        }
-
-        private void Username_GotFocus(object sender, RoutedEventArgs e)
-        {
-            UsernameHint.Visibility = Visibility.Hidden;
-            UsernameLabel.Visibility = Visibility.Visible;
-        }
-
-        private void Username_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (Username.Text == "")
+            if (sender is TextBlock hint)
             {
-                UsernameHint.Visibility = Visibility.Visible;
-                UsernameLabel.Visibility = Visibility.Hidden;
+                if (hint.Parent is Grid grid)
+                {
+                    grid.Children[1].Focus();
+                }
             }
         }
 
-        private void Password_LostFocus(object sender, RoutedEventArgs e)
+        private void Input_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (Password.Password == "")
+            if (sender is Control input)
             {
-                PasswordHint.Visibility = Visibility.Visible;
-                PasswordLabel.Visibility = Visibility.Hidden;
+                if (input.Parent is Grid grid)
+                {
+                    grid.Children[2].Visibility = Visibility.Hidden;
+                    grid.Children[0].Visibility = Visibility.Visible;
+                }
             }
         }
 
-        private void Password_GotFocus(object sender, RoutedEventArgs e)
+        private void Input_LostFocus(object sender, RoutedEventArgs e)
         {
-            PasswordHint.Visibility = Visibility.Hidden;
-            PasswordLabel.Visibility = Visibility.Visible;
+            if (sender is Control input)
+            {
+                bool switched = (input is TextBox username && username.Text == "")
+                    || (input is PasswordBox password && password.Password == "");
+
+                if (switched && input.Parent is Grid grid)
+                {
+                    grid.Children[2].Visibility = Visibility.Visible;
+                    grid.Children[0].Visibility = Visibility.Hidden;
+                }
+            }
         }
 
-        private void PasswordHint_MouseDown(object sender, MouseButtonEventArgs e)
+        private void SignInBtn_Click(object sender, RoutedEventArgs e)
         {
-            Password.Focus();
+            SignInBtn.IsEnabled = false;
+
+            if (Username.Text != "" &&  Password.Password != "")
+            {
+                frontend? user;
+                if ((user = App.DB.frontends.Find(Username.Text)) != null) 
+                {
+                    if (user.pass_word == Password.Password)
+                    {
+                        UI.Reservation reservation = new UI.Reservation();
+                        reservation.Show();
+                        this.Close();
+                    }
+                }
+            }
+
+            SignInBtn.IsEnabled = true;
         }
     }
 }
