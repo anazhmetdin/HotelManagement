@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotelManagement", "HotelManagement\HotelManagement.csproj", "{3FD74F27-6CA9-4D99-9D2D-F9B6A3691B09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UI", "HotelManagement\UI.csproj", "{3FD74F27-6CA9-4D99-9D2D-F9B6A3691B09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DB", "DB\DB.csproj", "{E662F9CC-0EA3-4284-BD37-A910EBBD24B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{3FD74F27-6CA9-4D99-9D2D-F9B6A3691B09}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FD74F27-6CA9-4D99-9D2D-F9B6A3691B09}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3FD74F27-6CA9-4D99-9D2D-F9B6A3691B09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E662F9CC-0EA3-4284-BD37-A910EBBD24B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E662F9CC-0EA3-4284-BD37-A910EBBD24B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E662F9CC-0EA3-4284-BD37-A910EBBD24B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E662F9CC-0EA3-4284-BD37-A910EBBD24B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
