@@ -5,8 +5,167 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UI"
         mc:Ignorable="d"
-        Title="Reservation" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Style="{StaticResource WindowStyle}"
+        Title="" Height="550" Width="1000">
+
+    <Window.Resources>
+        <ResourceDictionary>
+
+            <SolidColorBrush x:Key="accent" Color="ForestGreen"/>
+            <SolidColorBrush x:Key="section" Color="LightGray"/>
+
+            <Style TargetType="TabItem">
+                <Setter Property="Height" Value="30"/>
+                <Setter Property="Width" Value="120"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TabItem">
+                            <Grid>
+                                <ContentPresenter ContentSource="Header"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" />
+                                <Border x:Name="Border" BorderThickness="0 0 0 2"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource accent}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border Style="{StaticResource MainBorder}"
+            BorderBrush="{StaticResource accent}">
+        <Grid>
+            <Label Style="{StaticResource WindowLabel}"
+                   Content="Hotel Management" Margin="10,10,0,0"/>
+
+            <Button Style="{StaticResource WindowClose}"
+                    Margin="955,0,10,515"/>
+            <Button Style="{StaticResource WindowMinimize}"
+                    Margin="915,0,50,515"/>
+
+            <TabControl Margin="10,50,10,5" Background="Transparent" BorderThickness="0">
+                <TabItem Name="tab1" Header="TabItem"
+                         IsSelected="True">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0" Background="{StaticResource section}" Margin="5">
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="SSN" Margin="10,10,0,0"/>
+
+                            <Grid>
+                                <TextBox Style="{StaticResource TextInput}"
+                                         Name="SSN" Margin="10,29,10,383"
+                                         TextChanged="SSN_TextChanged"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="99999999999999" Margin="16,33,0,0"/>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Name" Margin="10,62,0,0"/>
+
+                            <Grid>
+                                <TextBox Style="{StaticResource TextInput}"
+                                         Name="first_name" Margin="10,83,162,329"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="First" Margin="16,87,0,0"/>
+                            </Grid>
+
+                            <Grid>
+                                <TextBox Style="{StaticResource FormInput}"
+                                         Name="last_name" Margin="162,83,10,329"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="Last" Margin="168,87,0,0"/>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Birthdate" Margin="10,117,0,0"/>
+
+                            <ComboBox Name="Day" Margin="10,138,215,271" Width="90"/>
+                            <ComboBox Name="Month" Margin="105,137,120,272" Width="90"/>
+                            <ComboBox Name="Year" Margin="200,137,10,272"/>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Gender" Margin="10,173,0,0"/>
+
+                            <ComboBox Name="gender" Margin="10,194,10,214"/>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Phone Number" Margin="10,230,0,0"/>
+                            <Grid>
+                                <TextBox Style="{StaticResource FormInput}"
+                                         Name="phone_number" Margin="10,250,10,162"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="01XXXXXXXXX" Margin="16,254,0,0"/>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Email Address" Margin="10,282,0,0"/>
+                            <Grid>
+                                <TextBox Style="{StaticResource FormInput}"
+                                         Name="email_address" Margin="10,303,10,109"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="example@example.com" Margin="16,307,0,0"/>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Address" Margin="10,336,0,0"/>
+
+                            <Grid>
+                                <TextBox Style="{StaticResource FormInput}"
+                                         Name="Apt" Margin="10,357,162,55"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="Apt./Suite" Margin="16,362,0,0"/>
+                            </Grid>
+
+                            <Grid>
+                                <TextBox Style="{StaticResource FormInput}"
+                                         Name="city" Margin="162,357,10,55"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="City" Margin="168,362,0,0"/>
+                            </Grid>
+
+                            <Grid>
+                                <TextBox Style="{StaticResource FormInput}"
+                                         Name="state" Margin="10,392,162,20"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="State" Margin="16,397,0,0"/>
+                            </Grid>
+
+                            <Grid>
+                                <TextBox Style="{StaticResource FormInput}"
+                                         Name="zip_code" Margin="162,392,10,20"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="Zip Code" Margin="168,397,0,0"/>
+                            </Grid>
+                        </Grid>
+
+                        <Grid Grid.Column="1" Background="LightGray" Margin="5">
+
+                        </Grid>
+
+                        <Grid Grid.Column="2" Background="LightGray" Margin="5">
+
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="TabItem">
+                    <Grid Background="#FFE5E5E5"/>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </Border>
 </Window>

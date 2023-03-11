@@ -15,8 +15,6 @@ public partial class reservation
 
     public int number_guest { get; set; }
 
-    public string apt_suite { get; set; }
-
     public string room_type { get; set; }
 
     public string room_floor { get; set; }

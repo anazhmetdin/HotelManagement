@@ -64,9 +64,6 @@ public partial class HotelContext : DbContext
 
             entity.ToTable("reservation");
 
-            entity.Property(e => e.apt_suite)
-                .IsRequired()
-                .HasMaxLength(50);
             entity.Property(e => e.arrival_time).HasColumnType("date");
             entity.Property(e => e.leaving_time).HasColumnType("date");
             entity.Property(e => e.payment_type)
@@ -107,6 +104,9 @@ public partial class HotelContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50);
             entity.Property(e => e.last_name)
+                .IsRequired()
+                .HasMaxLength(50);
+            entity.Property(e => e.apt_suite)
                 .IsRequired()
                 .HasMaxLength(50);
             entity.Property(e => e.state)

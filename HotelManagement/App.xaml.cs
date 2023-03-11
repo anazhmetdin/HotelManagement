@@ -50,10 +50,75 @@ namespace HotelManagement
             }
         }
 
+        private void Hint_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is TextBlock hint)
+            {
+                if (hint.Parent is Grid grid)
+                {
+                    grid.Children[1].Focus();
+                }
+            }
+        }
+
+        /*private void Input_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is Control input)
+            {
+                if (input.Parent is Grid grid)
+                {
+                    grid.Children[1].Visibility = Visibility.Hidden;
+                    if (grid.Children.Count > 2)
+                        grid.Children[2].Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private void Input_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is Control input)
+            {
+                bool switched = (input is TextBox username && username.Text == "")
+                    || (input is PasswordBox password && password.Password == "");
+
+                if (switched && input.Parent is Grid grid)
+                {
+                    grid.Children[1].Visibility = Visibility.Visible;
+                    if (grid.Children.Count > 2)
+                        grid.Children[2].Visibility = Visibility.Hidden;
+                }
+            }
+        }*/
+
         protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
         {
             DB.Dispose();
             base.OnSessionEnding(e);
+        }
+
+        private void TextBox_TextChanged(object sender, RoutedEventArgs e)
+        {
+            if (sender is Control input)
+            {
+                bool switched = (input is TextBox username && username.Text == "")
+                    || (input is PasswordBox password && password.Password == "");
+
+                if (input.Parent is Grid grid)
+                {
+                    if (switched)
+                    {
+                        grid.Children[1].Visibility = Visibility.Visible;
+                        if (grid.Children.Count > 2)
+                            grid.Children[2].Visibility = Visibility.Hidden;
+                    }
+                    else
+                    {
+                        grid.Children[1].Visibility = Visibility.Hidden;
+                        if (grid.Children.Count > 2)
+                            grid.Children[2].Visibility = Visibility.Visible;
+                    }
+                }
+            }
         }
     }
 }

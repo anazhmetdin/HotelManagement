@@ -8,7 +8,21 @@
         <Style x:Key="WindowStyle" TargetType="Window">
             <Setter Property="ResizeMode" Value="NoResize"/>
             <Setter Property="WindowStyle" Value="None"/>
+            <Setter Property="AllowsTransparency" Value="True"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <Style x:Key="MainBorder" TargetType="Border">
             <Setter Property="BorderThickness" Value="0 10 0 0"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Background" Value="WhiteSmoke"/>
+        </Style>
+
+        <Style x:Key="WindowLabel" TargetType="Label">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontFamily" Value="Verdana"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
         </Style>
 
         <Style x:Key="WindowControl" TargetType="Button">
@@ -36,9 +50,32 @@
             <Setter Property="FontSize" Value="20"/>
         </Style>
 
+        <Style x:Key="Hint" TargetType="TextBlock">
+            <Setter Property="Cursor" Value="IBeam"/>
+            <Setter Property="Foreground" Value="#FF454545"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <EventSetter Event="MouseDown" Handler="Hint_MouseDown"/>
+        </Style>
+
         <Style x:Key="FormInput" TargetType="Control">
-            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontSize" Value="15"/>
             <Setter Property="Padding" Value="5 1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="TextInput" TargetType="TextBox" BasedOn="{StaticResource FormInput}">
+            <EventSetter Event="TextChanged" Handler="TextBox_TextChanged"/>
+        </Style>
+
+        <Style x:Key="PasswordInput" TargetType="PasswordBox" BasedOn="{StaticResource FormInput}">
+            <EventSetter Event="PasswordChanged" Handler="TextBox_TextChanged"/>
+        </Style>
+
+        <Style x:Key="FormLabel" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
         </Style>
         
     </Application.Resources>

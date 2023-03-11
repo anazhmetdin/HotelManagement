@@ -24,6 +24,8 @@ public partial class guest
 
     public string street_address { get; set; }
 
+    public string apt_suite { get; set; }
+
     public string city { get; set; }
 
     public string state { get; set; }
