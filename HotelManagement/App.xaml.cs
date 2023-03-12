@@ -56,39 +56,10 @@ namespace HotelManagement
             {
                 if (hint.Parent is Grid grid)
                 {
-                    grid.Children[1].Focus();
+                    grid.Children[0].Focus();
                 }
             }
         }
-
-        /*private void Input_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (sender is Control input)
-            {
-                if (input.Parent is Grid grid)
-                {
-                    grid.Children[1].Visibility = Visibility.Hidden;
-                    if (grid.Children.Count > 2)
-                        grid.Children[2].Visibility = Visibility.Visible;
-                }
-            }
-        }
-
-        private void Input_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (sender is Control input)
-            {
-                bool switched = (input is TextBox username && username.Text == "")
-                    || (input is PasswordBox password && password.Password == "");
-
-                if (switched && input.Parent is Grid grid)
-                {
-                    grid.Children[1].Visibility = Visibility.Visible;
-                    if (grid.Children.Count > 2)
-                        grid.Children[2].Visibility = Visibility.Hidden;
-                }
-            }
-        }*/
 
         protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
         {

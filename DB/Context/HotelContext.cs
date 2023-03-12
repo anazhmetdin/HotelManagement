@@ -93,8 +93,7 @@ public partial class HotelContext : DbContext
             entity.Property(e => e.SSN)
                 .ValueGeneratedNever();
             entity.Property(e => e.birth_day)
-                .IsRequired()
-                .HasMaxLength(50);
+                .IsRequired();
             entity.Property(e => e.city).IsRequired();
             entity.Property(e => e.email_address).IsRequired();
             entity.Property(e => e.first_name)

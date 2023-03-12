@@ -85,7 +85,7 @@
                             </Grid>
 
                             <Grid>
-                                <TextBox Style="{StaticResource FormInput}"
+                                <TextBox Style="{StaticResource TextInput}"
                                          Name="last_name" Margin="162,83,10,329"/>
                                 <TextBlock Style="{StaticResource Hint}"
                                            Text="Last" Margin="168,87,0,0"/>
@@ -94,19 +94,28 @@
                             <TextBlock Style="{StaticResource FormLabel}"
                                         Text="Birthdate" Margin="10,117,0,0"/>
 
-                            <ComboBox Name="Day" Margin="10,138,215,271" Width="90"/>
-                            <ComboBox Name="Month" Margin="105,137,120,272" Width="90"/>
-                            <ComboBox Name="Year" Margin="200,137,10,272"/>
+                            <ComboBox Name="Day" Margin="10,138,215,271" Width="90">
+                                <ComboBoxItem Content="Day" IsSelected="True" IsEnabled="False"/>
+                            </ComboBox>
+                            <ComboBox Name="Month" Margin="105,137,120,272" Width="90">
+                                <ComboBoxItem Content="Month" IsSelected="True" IsEnabled="False"/>
+                            </ComboBox>
+                            <ComboBox Name="Year" Margin="200,137,10,272">
+                                <ComboBoxItem Content="Year" IsSelected="True" IsEnabled="False"/>
+                            </ComboBox>
 
                             <TextBlock Style="{StaticResource FormLabel}"
                                         Text="Gender" Margin="10,173,0,0"/>
 
-                            <ComboBox Name="gender" Margin="10,194,10,214"/>
+                            <ComboBox Name="gender" Margin="10,194,10,214">
+                                <ComboBoxItem Content="Male" IsSelected="True"/>
+                                <ComboBoxItem Content="Female"/>
+                            </ComboBox>
 
                             <TextBlock Style="{StaticResource FormLabel}"
                                         Text="Phone Number" Margin="10,230,0,0"/>
                             <Grid>
-                                <TextBox Style="{StaticResource FormInput}"
+                                <TextBox Style="{StaticResource TextInput}"
                                          Name="phone_number" Margin="10,250,10,162"/>
                                 <TextBlock Style="{StaticResource Hint}"
                                            Text="01XXXXXXXXX" Margin="16,254,0,0"/>
@@ -115,41 +124,45 @@
                             <TextBlock Style="{StaticResource FormLabel}"
                                         Text="Email Address" Margin="10,282,0,0"/>
                             <Grid>
-                                <TextBox Style="{StaticResource FormInput}"
+                                <TextBox Style="{StaticResource TextInput}"
                                          Name="email_address" Margin="10,303,10,109"/>
                                 <TextBlock Style="{StaticResource Hint}"
                                            Text="example@example.com" Margin="16,307,0,0"/>
                             </Grid>
 
-                            <TextBlock Style="{StaticResource FormLabel}"
-                                        Text="Address" Margin="10,336,0,0"/>
-
                             <Grid>
-                                <TextBox Style="{StaticResource FormInput}"
-                                         Name="Apt" Margin="10,357,162,55"/>
+                                <TextBox Style="{StaticResource TextInput}"
+                                         Name="street_address" Margin="10,336,10,76"/>
                                 <TextBlock Style="{StaticResource Hint}"
-                                           Text="Apt./Suite" Margin="16,362,0,0"/>
+                                           Text="Street Address" Margin="16,339,0,0" Height="17"/>
                             </Grid>
 
                             <Grid>
-                                <TextBox Style="{StaticResource FormInput}"
-                                         Name="city" Margin="162,357,10,55"/>
+                                <TextBox Style="{StaticResource TextInput}"
+                                         Name="apt_suite" Margin="10,369,162,43"/>
                                 <TextBlock Style="{StaticResource Hint}"
-                                           Text="City" Margin="168,362,0,0"/>
+                                           Text="Apt./Suite" Margin="16,374,0,0"/>
                             </Grid>
 
                             <Grid>
-                                <TextBox Style="{StaticResource FormInput}"
-                                         Name="state" Margin="10,392,162,20"/>
+                                <TextBox Style="{StaticResource TextInput}"
+                                         Name="city" Margin="162,369,10,43"/>
                                 <TextBlock Style="{StaticResource Hint}"
-                                           Text="State" Margin="16,397,0,0"/>
+                                           Text="City" Margin="168,374,0,0"/>
                             </Grid>
 
                             <Grid>
-                                <TextBox Style="{StaticResource FormInput}"
-                                         Name="zip_code" Margin="162,392,10,20"/>
+                                <TextBox Style="{StaticResource TextInput}"
+                                         Name="state" Margin="10,404,162,8"/>
                                 <TextBlock Style="{StaticResource Hint}"
-                                           Text="Zip Code" Margin="168,397,0,0"/>
+                                           Text="State" Margin="16,409,0,0"/>
+                            </Grid>
+
+                            <Grid>
+                                <TextBox Style="{StaticResource TextInput}"
+                                         Name="zip_code" Margin="162,404,10,8"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="Zip Code" Margin="168,409,0,0"/>
                             </Grid>
                         </Grid>
 
@@ -159,9 +172,31 @@
 
                         <Grid Grid.Column="2" Background="LightGray" Margin="5">
 
+
+                            <ComboBox Name="OldReservations" Margin="10,10,10,393"
+                                      VerticalContentAlignment="Center"
+                                      FontSize="16"
+                                      SelectionChanged="OldReservations_SelectionChanged">
+                                <ComboBoxItem Content="Old Reservations"
+                                              IsSelected="True"
+                                              IsEnabled="False"/>
+                            </ComboBox>
+
+
+                            <Button Content="Delete" Margin="64,285,63,119"
+                                    Name="Delete"
+                                    Foreground="White"
+                                    Background="DarkRed"/>
+                            <Button Content="New" Margin="64,339,63,65"
+                                    Name="New"/>
+                            <Button Content="Save" Margin="64,394,63,10"
+                                    Name="Save"
+                                    Foreground="White"
+                                    Background="{StaticResource accent}"/>
                         </Grid>
                     </Grid>
                 </TabItem>
+
                 <TabItem Header="TabItem">
                     <Grid Background="#FFE5E5E5"/>
                 </TabItem>

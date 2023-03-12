@@ -14,7 +14,7 @@ public partial class guest
 
     public string last_name { get; set; }
 
-    public string birth_day { get; set; }
+    public DateTime birth_day { get; set; }
 
     public string gender { get; set; }
 
