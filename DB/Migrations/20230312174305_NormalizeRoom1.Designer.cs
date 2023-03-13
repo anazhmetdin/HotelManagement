@@ -4,6 +4,7 @@ using DB.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(HotelContext))]
-    partial class HotelContextModelSnapshot : ModelSnapshot
+    [Migration("20230312174305_NormalizeRoom1")]
+    partial class NormalizeRoom1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,9 +34,6 @@ namespace DB.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Floor")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Number")
                         .HasColumnType("int");
 
                     b.Property<int>("RoomTypeId")
@@ -241,8 +241,11 @@ namespace DB.Migrations
                     b.Property<int>("number_guest")
                         .HasColumnType("int");
 
-                    b.Property<int>("payment_type")
-                        .HasColumnType("int");
+                    b.Property<string>("payment_type")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<int?>("roomId")
                         .HasColumnType("int");

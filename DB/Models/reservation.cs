@@ -5,6 +5,11 @@ using System.Collections.Generic;
 
 namespace DB.Models;
 
+public enum PaymentType
+{
+    Pending, Credit, Debit
+}
+
 public partial class reservation
 {
     public int Id { get; set; }
@@ -13,17 +18,13 @@ public partial class reservation
 
     public virtual card card { get; set; }
 
+    public virtual Room room { get; set; }
+
     public int number_guest { get; set; }
-
-    public string room_type { get; set; }
-
-    public string room_floor { get; set; }
-
-    public string room_number { get; set; }
 
     public double total_bill { get; set; }
 
-    public string payment_type { get; set; }
+    public PaymentType payment_type { get; set; }
 
     public DateTime arrival_time { get; set; }
 

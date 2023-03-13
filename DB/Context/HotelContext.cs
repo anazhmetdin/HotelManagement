@@ -29,6 +29,10 @@ public partial class HotelContext : DbContext
 
     public virtual DbSet<card> cards { get; set; }
 
+    public virtual DbSet<RoomType> RoomTypes { get; set; }
+
+    public virtual DbSet<Room> Rooms { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["HotelManagement"].ConnectionString);
 
@@ -67,21 +71,7 @@ public partial class HotelContext : DbContext
             entity.Property(e => e.arrival_time).HasColumnType("date");
             entity.Property(e => e.leaving_time).HasColumnType("date");
             entity.Property(e => e.payment_type)
-                .IsRequired()
-                .HasMaxLength(10)
-                .IsFixedLength();
-            entity.Property(e => e.room_floor)
-                .IsRequired()
-                .HasMaxLength(10)
-                .IsFixedLength();
-            entity.Property(e => e.room_number)
-                .IsRequired()
-                .HasMaxLength(10)
-                .IsFixedLength();
-            entity.Property(e => e.room_type)
-                .IsRequired()
-                .HasMaxLength(10)
-                .IsFixedLength();
+                .IsRequired();
         });
 
         modelBuilder.Entity<guest>(entity =>

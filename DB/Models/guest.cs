@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PropertyChanged;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace DB.Models;
 
+[AddINotifyPropertyChangedInterface]
 public partial class guest
 {
     public long SSN { get; set; }
@@ -32,5 +34,5 @@ public partial class guest
 
     public string zip_code { get; set; }
 
-    public virtual DbSet<card> cards { get; set; }
+    public virtual List<card> cards { get; set; }
 }

@@ -4,6 +4,7 @@ using DB.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(HotelContext))]
-    partial class HotelContextModelSnapshot : ModelSnapshot
+    [Migration("20230312173419_NormalizeRoom")]
+    partial class NormalizeRoom
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,9 +36,6 @@ namespace DB.Migrations
                     b.Property<int>("Floor")
                         .HasColumnType("int");
 
-                    b.Property<int>("Number")
-                        .HasColumnType("int");
-
                     b.Property<int>("RoomTypeId")
                         .HasColumnType("int");
 
@@ -43,7 +43,7 @@ namespace DB.Migrations
 
                     b.HasIndex("RoomTypeId");
 
-                    b.ToTable("Rooms");
+                    b.ToTable("Room");
                 });
 
             modelBuilder.Entity("DB.Models.RoomType", b =>
@@ -62,7 +62,7 @@ namespace DB.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RoomTypes");
+                    b.ToTable("RoomType");
                 });
 
             modelBuilder.Entity("DB.Models.card", b =>
@@ -241,8 +241,11 @@ namespace DB.Migrations
                     b.Property<int>("number_guest")
                         .HasColumnType("int");
 
-                    b.Property<int>("payment_type")
-                        .HasColumnType("int");
+                    b.Property<string>("payment_type")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
+                        .IsFixedLength();
 
                     b.Property<int?>("roomId")
                         .HasColumnType("int");

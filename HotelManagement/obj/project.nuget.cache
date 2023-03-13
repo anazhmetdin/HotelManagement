@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "pEELEzsRymnVM6U6amDEZLso+cENoq+fyUj/aFl8nHyQUuH4hYeq09qp67YNFD4os73atTbrheiyGCw3Ij19Aw==",
+  "dgSpecHash": "f6Cpxwr+D+ecgWOxe9suYuZYK1H11ixUj6mUL7RgmZ9L7QrE2ioY5TF5/RvhKP4R+AJi3eV7/G6l15DOLqu9eQ==",
   "success": true,
   "projectFilePath": "F:\\study\\iti\\ITI_courses\\DOTNET\\EFCore\\HotelProject\\HotelManagement\\HotelManagement\\UI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\negm\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
+    "C:\\Users\\negm\\.nuget\\packages\\fody\\6.6.4\\fody.6.6.4.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
@@ -41,6 +42,7 @@
     "C:\\Users\\negm\\.nuget\\packages\\microsoft.win32.registry\\5.0.0\\microsoft.win32.registry.5.0.0.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
+    "C:\\Users\\negm\\.nuget\\packages\\propertychanged.fody\\4.1.0\\propertychanged.fody.4.1.0.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\system.buffers\\4.5.1\\system.buffers.4.5.1.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\system.codedom\\4.4.0\\system.codedom.4.4.0.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\system.configuration.configurationmanager\\5.0.0\\system.configuration.configurationmanager.5.0.0.nupkg.sha512",

@@ -11,8 +11,28 @@
     <Window.Resources>
         <ResourceDictionary>
 
+            <Style x:Key="all" TargetType="Control">
+                <Setter Property="VerticalAlignment" Value="Top"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+            </Style>
+
+            <Style TargetType="CheckBox" BasedOn="{StaticResource all}"/>
+
             <SolidColorBrush x:Key="accent" Color="ForestGreen"/>
             <SolidColorBrush x:Key="section" Color="LightGray"/>
+            <SolidColorBrush x:Key="white" Color="White"/>
+
+            <Style TargetType="ComboBox">
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+            </Style>
+
+            <Style TargetType="CheckBox" x:Key="checkin" BasedOn="{StaticResource all}">
+                <Style.Triggers>
+                    <Trigger Property="IsChecked" Value="True">
+                        <Setter Property="IsEnabled" Value="False"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
 
             <Style TargetType="TabItem">
                 <Setter Property="Height" Value="30"/>
@@ -52,7 +72,7 @@
                     Margin="915,0,50,515"/>
 
             <TabControl Margin="10,50,10,5" Background="Transparent" BorderThickness="0">
-                <TabItem Name="tab1" Header="TabItem"
+                <TabItem Name="tab1" Header="Reservation"
                          IsSelected="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -166,15 +186,119 @@
                             </Grid>
                         </Grid>
 
-                        <Grid Grid.Column="1" Background="LightGray" Margin="5">
+                        <Grid Grid.Column="1" Background="{StaticResource section}" Margin="5">
 
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Number of Guests:" Margin="162,111,0,0"/>
+                            <ComboBox Name="number_guest" Margin="162,131,10,281">
+                                <ComboBoxItem Content="Number of Guests" IsSelected="True"
+                                              IsEnabled="False"/>
+                            </ComboBox>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Room Type:" Margin="10,111,0,0"/>
+                            <ComboBox Name="room_type" Margin="10,131,161,281"
+                                      SelectionChanged="room_type_SelectionChanged">
+                                <ComboBoxItem Content="Room Type"
+                                              IsSelected="True" IsEnabled="False"/>
+                            </ComboBox>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                Text="Floor Number:" Margin="10,163,0,0"/>
+                            <ComboBox Name="floor" Margin="10,184,162,228"
+                                      SelectionChanged="floor_SelectionChanged">
+                                <ComboBoxItem Content="Floor" IsSelected="True"
+                                              IsEnabled="False"/>
+                            </ComboBox>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                Text="Room Number:" Margin="162,163,0,0"/>
+                            <ComboBox Name="room_number" Margin="162,184,10,228">
+                                <ComboBoxItem Content="Room Number"
+                                              IsSelected="True" IsEnabled="False"/>
+                            </ComboBox>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Entry Date:" Margin="10,10,0,0"/>
+                            <DatePicker HorizontalAlignment="Center"
+                                        Name="arrival_time"
+                                        SelectedDateChanged="arrival_time_SelectedDateChanged"
+                                        Margin="0,31,0,0" VerticalAlignment="Top" Width="295"/>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Departure Date:" Margin="10,60,0,0"/>
+                            <DatePicker HorizontalAlignment="Center"
+                                        Name="leaving_time"
+                                        Margin="0,81,0,0" VerticalAlignment="Top" Width="295"/>
+
+                            <CheckBox Content="Check In"
+                                      Name="check_in"
+                                      Style="{StaticResource checkin}"
+                                      Margin="10,220,0,0"/>
+
+
+                            <CheckBox Content="Supply Status"
+                                      IsEnabled="False"
+                                      Name="supply_status"
+                                      Style="{StaticResource checkin}"
+                                      Margin="214,220,0,0"/>
+
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Food:" Margin="10,242,0,0"/>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Breakfast Quantity:" Margin="10,263,0,0"/>
+                            <Grid>
+                                <TextBox Style="{StaticResource TextInput}"
+                                         Name="breakfast" Margin="194,257,10,155"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="0" Margin="200,261,0,0"/>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Lunch Quantity:" Margin="10,294,0,0"/>
+                            <Grid>
+                                <TextBox Style="{StaticResource TextInput}"
+                                         Name="lunch" Margin="194,288,10,124"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="0" Margin="200,292,0,0"/>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Dinner Quantity:" Margin="10,325,0,0"/>
+                            <Grid>
+                                <TextBox Style="{StaticResource TextInput}"
+                                         Name="dinner" Margin="194,319,10,93"/>
+                                <TextBlock Style="{StaticResource Hint}"
+                                           Text="0" Margin="200,323,0,0"/>
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource FormLabel}"
+                                        Text="Special Needs:" Margin="10,353,0,0"/>
+
+                            <CheckBox Content="Cleaning"
+                                      Name="cleaning"
+                                      Margin="10,374,0,0"/>
+
+                            <CheckBox Content="Towels"
+                                      Name="towels"
+                                      Margin="108,374,0,0"/>
+
+                            <CheckBox Content="Sweetest Surprise"
+                                      Name="s_surprise"
+                                      Margin="193,374,0,0"/>
+
+                            <Button Foreground="{StaticResource accent}"
+                                    Background="{StaticResource white}"
+                                    Content="Finalize Bill"
+                                    FontWeight="Bold" Margin="10,399,10,10"/>
                         </Grid>
 
-                        <Grid Grid.Column="2" Background="LightGray" Margin="5">
+                        <Grid Grid.Column="2" Background="{StaticResource section}" Margin="5">
 
 
                             <ComboBox Name="OldReservations" Margin="10,10,10,393"
-                                      VerticalContentAlignment="Center"
                                       FontSize="16"
                                       SelectionChanged="OldReservations_SelectionChanged">
                                 <ComboBoxItem Content="Old Reservations"
@@ -185,19 +309,22 @@
 
                             <Button Content="Delete" Margin="64,285,63,119"
                                     Name="Delete"
-                                    Foreground="White"
+                                    Click="Delete_Click"
+                                    Foreground="{StaticResource white}"
                                     Background="DarkRed"/>
                             <Button Content="New" Margin="64,339,63,65"
+                                    Click="New_Click"
                                     Name="New"/>
                             <Button Content="Save" Margin="64,394,63,10"
                                     Name="Save"
-                                    Foreground="White"
+                                    Click="Save_Click"
+                                    Foreground="{StaticResource white}"
                                     Background="{StaticResource accent}"/>
                         </Grid>
                     </Grid>
                 </TabItem>
 
-                <TabItem Header="TabItem">
+                <TabItem Header="Universal Search">
                     <Grid Background="#FFE5E5E5"/>
                 </TabItem>
             </TabControl>
