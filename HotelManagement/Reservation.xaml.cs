@@ -3,7 +3,9 @@ using HotelManagement;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,14 +28,15 @@ namespace UI
         {
             InitializeComponent();
 
+            #region Reservation Management
             for (int year = DateTime.Now.Year - 136; year <= DateTime.Now.Year - 16; year++)
             {
-                Year.Items.Add(new ComboBoxItem() { Content = year});
+                Year.Items.Add(new ComboBoxItem() { Content = year });
             }
 
             for (int month = 1; month <= 12; month++)
             {
-                Month.Items.Add(new ComboBoxItem() { Content = month});
+                Month.Items.Add(new ComboBoxItem() { Content = month });
             }
 
             for (int day = 1; day <= 31; day++)
@@ -60,10 +63,68 @@ namespace UI
             }
 
             arrival_time.DisplayDateStart = DateTime.Now;
+            #endregion
+
+            #region Grids
+            App.DB.reservations.Include(r=>r.guest).Include(r=>r.card).Include(r=>r.room.RoomType).Load();
+            
+            ReservationGrid.ItemsSource = App.DB.reservations.Local.ToObservableCollection();
+            ReservationGrid.Loaded += ReservationGrid_Loaded;
+
+            GuestsGrid.ItemsSource = App.DB.guests.Local.ToObservableCollection();
+            GuestsGrid.Loaded += GuestsGrid_Loaded;
+
+            OccupiedGrid.Loaded += OccupiedGrid_Loaded;
+            ReservedGrid.Loaded += ReservedGrid_Loaded;
+            #endregion
         }
 
-        reservation? CurrentReservation;
-        guest? currentGuest;
+        #region Grids
+        private void ReservedGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            ReservedGrid.ItemsSource = App.DB.reservations.Where(r => !r.check_in && r.arrival_time <= DateTime.Now && r.leaving_time > DateTime.Now)
+                .Select(r => new { r.room.Number, r.room.RoomType.Type, r.Id, r.guest.first_name, r.guest.last_name, r.guest.phone_number }).ToList();
+        }
+
+        private void OccupiedGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            OccupiedGrid.ItemsSource = App.DB.reservations.Where(r => r.check_in && r.arrival_time <= DateTime.Now && r.leaving_time > DateTime.Now)
+                .Select(r => new { r.room.Number, r.room.RoomType.Type, r.Id, r.guest.first_name, r.guest.last_name, r.guest.phone_number }).ToList();
+        }
+
+        private void GuestsGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            GuestsGrid.Items.Refresh();
+            if (GuestsGrid.Columns.Count > 0)
+            {
+                GuestsGrid.Columns[11].Visibility = Visibility.Hidden;
+            }
+        }
+
+        private void ReservationGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            ReservationGrid.Items.Refresh();
+            if (ReservationGrid.Columns.Count > 0)
+            {
+                ReservationGrid.Columns[0].IsReadOnly = true;
+                ReservationGrid.Columns[1].IsReadOnly = true;
+                ReservationGrid.Columns[2].IsReadOnly = true;
+                ReservationGrid.Columns[3].IsReadOnly = true;
+                ReservationGrid.Columns[9].IsReadOnly = true;
+                ReservationGrid.Columns[16].IsReadOnly = true;
+            }
+        }
+        private void SaveGrid_Click(object sender, RoutedEventArgs e)
+        {
+            ReservationGrid.CommitEdit();
+            App.DB.SaveChanges();
+        }
+        #endregion
+
+        #region Reservation Management
+        public static reservation? CurrentReservation;
+        public static guest? currentGuest;
+        public static card? currentCard;
 
         private void PopulateDays()
         {
@@ -76,14 +137,14 @@ namespace UI
             Day.Items.Add(temp);
 
 
-            int month = (int) ((ComboBoxItem)Month.SelectedItem).Content;
+            int month = (int)((ComboBoxItem)Month.SelectedItem).Content;
             int year = (int)((ComboBoxItem)Year.SelectedItem).Content;
 
             int days = DateTime.DaysInMonth(year, month);
             index = Math.Min(index, days);
             for (int day = 1; day <= days; day++)
             {
-                Day.Items.Add(new ComboBoxItem() { Content = day});
+                Day.Items.Add(new ComboBoxItem() { Content = day });
             }
 
             Day.SelectedIndex = index;
@@ -94,7 +155,7 @@ namespace UI
             long ssn;
             if (SSN.Text.Length == 14 && long.TryParse(SSN.Text, out ssn))
             {
-                currentGuest = App.DB.guests.Find(ssn);
+                currentGuest = App.DB.guests.Include(g => g.cards).FirstOrDefault(c => c.SSN == ssn);
                 if (currentGuest != null)
                 {
                     FillUserData();
@@ -124,7 +185,7 @@ namespace UI
         private void FillUserData()
         {
             if (currentGuest == null) return;
-            
+
             SSN.Text = currentGuest.SSN.ToString();
             first_name.Text = currentGuest.first_name;
             last_name.Text = currentGuest.last_name;
@@ -146,7 +207,7 @@ namespace UI
 
             arrival_time.SelectedDate = CurrentReservation.arrival_time;
             leaving_time.SelectedDate = CurrentReservation.leaving_time;
-            
+
             room_type.Text = CurrentReservation.room.RoomType.Type.ToString();
             floor.Text = CurrentReservation.room.Floor.ToString();
             room_number.Text = CurrentReservation.room.Number.ToString();
@@ -202,9 +263,16 @@ namespace UI
             {
                 if (selected.Tag is int tag)
                 {
-                    CurrentReservation = App.DB.reservations.Where(r => r.Id == tag).Include(r => r.guest).Include(r => r.room.RoomType).FirstOrDefault() ;
+                    CurrentReservation = App.DB.reservations.Where(r => r.Id == tag)
+                        .Include(r => r.guest)
+                        .ThenInclude(g => g.cards)
+                        .Include(r => r.room.RoomType)
+                        .Include(r => r.card)
+                        .FirstOrDefault();
                     if (CurrentReservation != null)
                     {
+                        currentGuest = CurrentReservation.guest;
+                        currentCard = CurrentReservation.card;
                         FillUserData();
                         FillReservationData();
                     }
@@ -214,18 +282,29 @@ namespace UI
 
         private void room_type_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (room_type.SelectedItem is ComboBoxItem selected)
+            if (floor != null)
             {
+                var temp = number_guest.Items[0];
+                number_guest.Items.Clear();
+                number_guest.Items.Add(temp);
+
+                temp = floor.Items[0];
+                floor.Items.Clear();
+                floor.Items.Add(temp);
+
+                floor.SelectedIndex = 0;
+                number_guest.SelectedIndex = 0;
+            }
+
+            if (room_type.SelectedItem is ComboBoxItem selected && floor != null)
+            {
+
                 if (selected.Tag is int tag)
                 {
                     RoomType? roomType = App.DB.RoomTypes.Find(tag);
                     if (roomType != null)
-                    {   
+                    {
                         int index = number_guest.SelectedIndex;
-
-                        var temp = number_guest.Items[0];
-                        number_guest.Items.Clear();
-                        number_guest.Items.Add(temp);
 
                         int max = roomType.Capacity;
 
@@ -237,44 +316,53 @@ namespace UI
 
                         number_guest.SelectedIndex = index;
 
-                        temp = floor.Items[0];
-                        floor.Items.Clear();
-                        floor.Items.Add(temp);
-
                         foreach (var f in App.DB.Rooms.Where(r => r.RoomType == roomType).GroupBy(r => r.Floor))
                         {
                             floor.Items.Add(new ComboBoxItem() { Tag = f.Key, Content = f.Key });
                         }
-
-                        floor.SelectedIndex = 0;
-
-                        temp = room_number.Items[0];
-                        room_number.Items.Clear();
-                        room_number.Items.Add(temp);
-                        room_number.SelectedIndex = 0;
                     }
+                    
+                    floor.SelectedIndex = 0;
+                    number_guest.SelectedIndex = 0;
                 }
             }
         }
 
         private void floor_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (floor.SelectedItem is ComboBoxItem selected && room_type.SelectedItem is ComboBoxItem roomType)
+            if (room_number != null)
             {
+                var temp = room_number.Items[0];
+                room_number.Items.Clear();
+                room_number.Items.Add(temp);
+
+                room_number.SelectedIndex = 0;
+            }
+            if (floor.SelectedItem is ComboBoxItem selected && room_type.SelectedItem is ComboBoxItem roomType && room_number != null)
+            {
+
                 if (selected.Tag is int tag && roomType.Tag is int typeID)
                 {
-                    var temp = room_number.Items[0];
-                    room_number.Items.Clear();
-                    room_number.Items.Add(temp);
-
-                    foreach (var room in App.DB.Rooms.Where(r => r.Floor == tag && r.RoomType.Id == typeID))
+                    foreach (var room in App.DB.Rooms.Where(r => r.Floor == tag && r.RoomType.Id == typeID).ToList())
                     {
-                        room_number.Items.Add(new ComboBoxItem() { Tag = room.Number, Content = room.Number });
+                        if (IsRoomAvailable(room, arrival_time.SelectedDate, leaving_time.SelectedDate))
+                        {
+                            room_number.Items.Add(new ComboBoxItem() { Tag = room.Number, Content = room.Number });
+                        }
                     }
-                    
-                    room_number.SelectedIndex = 0;
                 }
+                
+                room_number.SelectedIndex = 0;
             }
+        }
+
+        bool IsRoomAvailable(Room room, DateTime? arrival, DateTime? leaving)
+        {
+            if (arrival == null || leaving == null) return false;
+
+            int currentID = CurrentReservation?.Id??-1;
+
+            return !App.DB.reservations.Any(r => r.Id != currentID && r.room.Id == room.Id && r.arrival_time < leaving && arrival < r.leaving_time);
         }
 
         private void arrival_time_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -282,21 +370,28 @@ namespace UI
             if (arrival_time.SelectedDate != null)
             {
                 leaving_time.DisplayDateStart = arrival_time.SelectedDate.Value.AddDays(1);
+                room_type.SelectedIndex = 0;
             }
         }
 
-        private void Save_Click(object sender, RoutedEventArgs e)
+        bool SyncInfo()
         {
-
+            reservation? temp = null;
+            if (CurrentReservation != null && CurrentReservation.card != null)
+            {
+                temp = CurrentReservation;
+            }
             try
             {
-                bool added = false;
-
-                if (CurrentReservation != null && (App.DB.Entry(CurrentReservation).State == EntityState.Unchanged || App.DB.Entry(CurrentReservation).State == EntityState.Modified))
-                { App.DB.Entry(CurrentReservation).State = EntityState.Modified; }
-                else {
+                if (CurrentReservation != null
+                    && (App.DB.Entry(CurrentReservation).State == EntityState.Unchanged
+                    || App.DB.Entry(CurrentReservation).State == EntityState.Modified))
+                {
+                    App.DB.Entry(CurrentReservation).State = EntityState.Modified;
+                }
+                else
+                {
                     CurrentReservation = new();
-                    added = true;
                 }
 
                 CurrentReservation.guest = currentGuest;
@@ -304,16 +399,30 @@ namespace UI
                 if (CurrentReservation.guest != null) { App.DB.Entry(CurrentReservation.guest).State = EntityState.Modified; }
                 else { CurrentReservation.guest = new(); }
 
-                if (CurrentReservation.room != null) { App.DB.Entry(CurrentReservation.room).State = EntityState.Modified; }
-                else { CurrentReservation.room = new(); }
+                if (temp == null)
+                {
+                    CurrentReservation.payment_type = PaymentType.Pending;
+                }
+                else
+                {
+                    CurrentReservation.card = temp.card;
+                    CurrentReservation.total_bill = temp.total_bill;
+                    CurrentReservation.food_bill = temp.food_bill;
+                    CurrentReservation.payment_type = temp.payment_type;
+                    CurrentReservation.guest.cards.Add(temp.card);
+                }
 
-                /*if (CurrentReservation.card != null) { App.DB.Entry(CurrentReservation.card).State = EntityState.Modified; }
-                else { CurrentReservation.card = new(); }*/
+                //if (CurrentReservation.room != null) { App.DB.Entry(CurrentReservation.room).State = EntityState.Modified; }
+                //else { CurrentReservation.room = new(); }
+
+                //if (CurrentReservation.card != null) { App.DB.Entry(CurrentReservation.card).State = EntityState.Modified; }
+                //else { CurrentReservation.card = new(); }
 
                 CurrentReservation.guest.SSN = long.Parse(SSN.Text);
                 CurrentReservation.guest.first_name = first_name.Text;
                 CurrentReservation.guest.last_name = last_name.Text;
                 CurrentReservation.guest.birth_day = new DateTime(Int32.Parse(Year.Text), Int32.Parse(Month.Text), Int32.Parse(Day.Text));
+                CurrentReservation.guest.gender = gender.Text;
                 CurrentReservation.guest.phone_number = phone_number.Text;
                 CurrentReservation.guest.email_address = email_address.Text;
                 CurrentReservation.guest.street_address = street_address.Text;
@@ -338,46 +447,112 @@ namespace UI
                 CurrentReservation.towel = towels.IsChecked ?? false;
                 CurrentReservation.s_surprise = s_surprise.IsChecked ?? false;
 
-                CurrentReservation.payment_type = PaymentType.Pending;
-
-                if (added)
-                    App.DB.reservations.Add(CurrentReservation);
-
-                App.DB.SaveChanges();
-
-                added = App.DB.Entry(CurrentReservation).State == EntityState.Added;
-
-                ComboBoxItem comboBoxItem = new ComboBoxItem()
-                {
-                    Tag = CurrentReservation.Id,
-                    IsSelected = true,
-                    Content = $"{CurrentReservation.Id} - {CurrentReservation.room!.RoomType.Type} - {CurrentReservation.guest.first_name} {CurrentReservation.guest.last_name} - {CurrentReservation.arrival_time.ToShortDateString()}"
-                };
-
-                if (added)
-                {
-                    OldReservations.Items.Add(comboBoxItem);
-                }
-                else
-                {
-                    int temp = OldReservations.SelectedIndex;
-                    OldReservations.Items[OldReservations.SelectedIndex] = comboBoxItem;
-                    OldReservations.SelectedIndex = temp;
-                }
-
                 currentGuest = CurrentReservation.guest;
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+            SaveData();
+        }
+
+        private void SaveData()
+        {
+            List<card>? cards = null;
+            card? Card = null;
+            try
+            {
+                bool added = false;
+
+                if (SyncInfo() && CurrentReservation != null)
+                {
+                    added = App.DB.Entry(CurrentReservation).State == EntityState.Added;
+
+                    cards = CurrentReservation.guest.cards;
+                    Card = CurrentReservation.card;
+
+                    CurrentReservation.card = default;
+
+                    if (App.DB.Entry(CurrentReservation.guest).State == EntityState.Detached)
+                    {
+                        CurrentReservation.guest.cards = default!;
+                        App.DB.guests.Add(CurrentReservation.guest);
+                        App.DB.SaveChanges();
+                        CurrentReservation.guest.cards = cards;
+                    }
+                    else
+                    {
+                        App.DB.Update(CurrentReservation.guest);
+                        App.DB.SaveChanges();
+                    }
+
+                    CurrentReservation.card = Card;
+
+                    if (CurrentReservation.card != null)
+                    {
+                        App.DB.Update(CurrentReservation.card);
+                        App.DB.SaveChanges();
+                    }
+
+                    App.DB.Update(CurrentReservation);
+                    App.DB.SaveChanges();
+
+
+                    ComboBoxItem comboBoxItem = new ComboBoxItem()
+                    {
+                        Tag = CurrentReservation.Id,
+                        IsSelected = true,
+                        Content = $"{CurrentReservation.Id} - {CurrentReservation.room!.RoomType.Type} - {CurrentReservation.guest.first_name} {CurrentReservation.guest.last_name} - {CurrentReservation.arrival_time.ToShortDateString()}"
+                    };
+
+                    if (added)
+                    {
+                        OldReservations.Items.Add(comboBoxItem);
+                    }
+                    else
+                    {
+                        int temp = OldReservations.SelectedIndex;
+                        OldReservations.Items[OldReservations.SelectedIndex] = comboBoxItem;
+                        OldReservations.SelectedIndex = temp;
+                    }
+                }
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
-                if (App.DB.Entry(CurrentReservation!).State == EntityState.Added)
-                    App.DB.reservations.Remove(CurrentReservation!);
-                else
+                if (cards != null)
                 {
-                    App.DB.Entry(CurrentReservation!).Reload();
-                    FillReservationData();
+                    CurrentReservation!.guest.cards = cards;
                 }
+                if (Card != null)
+                {
+                    CurrentReservation!.card = Card;
+                }
+
+                FixEntity(CurrentReservation!);
+                FixEntity(CurrentReservation!.guest!);
+                FixEntity(CurrentReservation!.card!);
+            }
+        }
+
+        void FixEntity(dynamic entity)
+        {
+            if (App.DB.Entry(entity).State == EntityState.Added)
+            {
+                App.DB.Entry(entity).State = EntityState.Detached;
+            }
+            else
+            {
+                App.DB.Entry(entity).Reload();
+                FillReservationData();
             }
         }
 
@@ -402,9 +577,58 @@ namespace UI
 
                 ResetReservationData();
                 ResetUserInfo();
-                
+
                 App.DB.SaveChanges();
             }
         }
+
+        private void FinalizeBill_Click(object sender, RoutedEventArgs e)
+        {
+            if (SyncInfo())
+            {
+                Bill bill = new Bill();
+                bill.ShowDialog();
+                SaveData();
+            }
+        }
+        private void leaving_time_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (leaving_time.SelectedDate !=  null)
+            {
+                arrival_time.DisplayDateEnd = leaving_time.SelectedDate;
+                room_type.SelectedIndex = 0;
+            }
+        }
+        #endregion
+
+        #region Search
+        private void Search_Click(object sender, RoutedEventArgs e)
+        {
+            var query = UniversalQuery.Text.Trim().ToLower();
+
+            UniversalGrid.ItemsSource = App.DB.reservations.Select(r => new
+                {
+                    r.Id, r.food_bill, r.total_bill,
+                    r.guest.SSN, r.guest.first_name, r.guest.last_name, r.guest.birth_day,
+                    r.guest.email_address, r.guest.phone_number, r.guest.street_address,
+                    r.guest.city, r.guest.apt_suite, r.guest.zip_code, r.arrival_time,
+                    r.leaving_time, r.lunch, r.break_fast, r.dinner, r.number_guest,
+                    r.supply_status, r.check_in, r.payment_type,
+                    r.card.card_type, r.card.card_exp, r.card.card_number, r.card.card_cvc,
+                    r.cleaning, r.towel, r.s_surprise, r.room.Number, r.room.RoomType.Type,
+                    r.room.Floor
+                }).ToList()
+                .Where(r => SearchObjectQuery(r, query)).ToList();
+        }
+
+        bool SearchObjectQuery(dynamic obj, string query)
+        {
+            foreach (var prop in obj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            {
+                if (prop.GetValue(obj, null)?.ToString().Trim().ToLower().Contains(query) == true) return true;
+            }
+            return false;
+        }
+        #endregion
     }
 }

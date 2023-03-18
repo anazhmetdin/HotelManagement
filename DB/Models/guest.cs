@@ -34,5 +34,10 @@ public partial class guest
 
     public string zip_code { get; set; }
 
-    public virtual List<card> cards { get; set; }
+    public virtual List<card> cards { get; set; } = new List<card>();
+
+    public override string ToString()
+    {
+        return this.SSN.ToString();
+    }
 }

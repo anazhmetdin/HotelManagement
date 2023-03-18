@@ -126,7 +126,7 @@ public partial class HotelContext : DbContext
                 .HasMaxLength(50);
             entity.Property(e => e.card_type)
                 .IsRequired()
-                .HasMaxLength(10)
+                .HasMaxLength(32)
                 .IsFixedLength();
         });
 

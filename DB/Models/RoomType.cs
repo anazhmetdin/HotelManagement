@@ -16,5 +16,6 @@ namespace DB.Models
         public int Id { get; set; } 
         public Type Type { get; set; }
         public int Capacity { get; set; }
+        public int NightPrice { get; set; }
     }
 }

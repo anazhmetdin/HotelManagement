@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace DB.Models;
 
@@ -22,7 +23,7 @@ public partial class reservation
 
     public int number_guest { get; set; }
 
-    public double total_bill { get; set; }
+    public decimal total_bill { get; set; }
 
     public PaymentType payment_type { get; set; }
 
@@ -46,5 +47,5 @@ public partial class reservation
 
     public bool supply_status { get; set; }
 
-    public int food_bill { get; set; }
+    public decimal food_bill { get; set; }
 }

@@ -18,5 +18,10 @@ namespace DB.Models
         public string card_exp { get; set; }
 
         public string card_cvc { get; set; }
+
+        public override string ToString()
+        {
+            return this.card_number;
+        }
     }
 }

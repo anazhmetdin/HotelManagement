@@ -4,6 +4,7 @@ using DB.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DB.Migrations
 {
     [DbContext(typeof(HotelContext))]
-    partial class HotelContextModelSnapshot : ModelSnapshot
+    [Migration("20230317195621_AddRoomPrice")]
+    partial class AddRoomPrice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,8 +97,8 @@ namespace DB.Migrations
 
                     b.Property<string>("card_type")
                         .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("nchar(32)")
+                        .HasMaxLength(10)
+                        .HasColumnType("nchar(10)")
                         .IsFixedLength();
 
                     b.Property<long>("guestSSN")
@@ -229,8 +232,8 @@ namespace DB.Migrations
                     b.Property<int>("dinner")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("food_bill")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<int>("food_bill")
+                        .HasColumnType("int");
 
                     b.Property<long?>("guestSSN")
                         .HasColumnType("bigint");
@@ -256,8 +259,8 @@ namespace DB.Migrations
                     b.Property<bool>("supply_status")
                         .HasColumnType("bit");
 
-                    b.Property<decimal>("total_bill")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("total_bill")
+                        .HasColumnType("float");
 
                     b.Property<bool>("towel")
                         .HasColumnType("bit");

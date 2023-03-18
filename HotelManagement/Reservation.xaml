@@ -22,9 +22,7 @@
             <SolidColorBrush x:Key="section" Color="LightGray"/>
             <SolidColorBrush x:Key="white" Color="White"/>
 
-            <Style TargetType="ComboBox">
-                <Setter Property="VerticalContentAlignment" Value="Center"/>
-            </Style>
+            <Style TargetType="ComboBox" BasedOn="{StaticResource FormInput}"/>
 
             <Style TargetType="CheckBox" x:Key="checkin" BasedOn="{StaticResource all}">
                 <Style.Triggers>
@@ -64,7 +62,7 @@
             BorderBrush="{StaticResource accent}">
         <Grid>
             <Label Style="{StaticResource WindowLabel}"
-                   Content="Hotel Management" Margin="10,10,0,0"/>
+                   Content="Reservation Management" Margin="10,10,0,0"/>
 
             <Button Style="{StaticResource WindowClose}"
                     Margin="955,0,10,515"/>
@@ -76,12 +74,13 @@
                          IsSelected="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="203*"/>
+                            <ColumnDefinition Width="122*"/>
+                            <ColumnDefinition Width="325*"/>
+                            <ColumnDefinition Width="325*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Grid Grid.Column="0" Background="{StaticResource section}" Margin="5">
+                        <Grid Grid.Column="0" Background="{StaticResource section}" Margin="5,5,5,5" Grid.ColumnSpan="2">
 
                             <TextBlock Style="{StaticResource FormLabel}"
                                         Text="SSN" Margin="10,10,0,0"/>
@@ -89,6 +88,7 @@
                             <Grid>
                                 <TextBox Style="{StaticResource TextInput}"
                                          Name="SSN" Margin="10,29,10,383"
+                                         MaxLength="14"
                                          TextChanged="SSN_TextChanged"/>
                                 <TextBlock Style="{StaticResource Hint}"
                                            Text="99999999999999" Margin="16,33,0,0"/>
@@ -136,6 +136,7 @@
                                         Text="Phone Number" Margin="10,230,0,0"/>
                             <Grid>
                                 <TextBox Style="{StaticResource TextInput}"
+                                         MaxLength="13"
                                          Name="phone_number" Margin="10,250,10,162"/>
                                 <TextBlock Style="{StaticResource Hint}"
                                            Text="01XXXXXXXXX" Margin="16,254,0,0"/>
@@ -186,12 +187,12 @@
                             </Grid>
                         </Grid>
 
-                        <Grid Grid.Column="1" Background="{StaticResource section}" Margin="5">
+                        <Grid Grid.Column="2" Background="{StaticResource section}" Margin="5,5,5,5">
 
                             <TextBlock Style="{StaticResource FormLabel}"
                                         Text="Number of Guests:" Margin="162,111,0,0"/>
                             <ComboBox Name="number_guest" Margin="162,131,10,281">
-                                <ComboBoxItem Content="Number of Guests" IsSelected="True"
+                                <ComboBoxItem Content="#Guests" IsSelected="True"
                                               IsEnabled="False"/>
                             </ComboBox>
 
@@ -214,7 +215,7 @@
                             <TextBlock Style="{StaticResource FormLabel}"
                                 Text="Room Number:" Margin="162,163,0,0"/>
                             <ComboBox Name="room_number" Margin="162,184,10,228">
-                                <ComboBoxItem Content="Room Number"
+                                <ComboBoxItem Content="Room Num"
                                               IsSelected="True" IsEnabled="False"/>
                             </ComboBox>
 
@@ -222,6 +223,7 @@
                                         Text="Entry Date:" Margin="10,10,0,0"/>
                             <DatePicker HorizontalAlignment="Center"
                                         Name="arrival_time"
+                                        Style="{StaticResource FormInput}"
                                         SelectedDateChanged="arrival_time_SelectedDateChanged"
                                         Margin="0,31,0,0" VerticalAlignment="Top" Width="295"/>
 
@@ -229,6 +231,8 @@
                                         Text="Departure Date:" Margin="10,60,0,0"/>
                             <DatePicker HorizontalAlignment="Center"
                                         Name="leaving_time"
+                                        SelectedDateChanged="leaving_time_SelectedDateChanged"
+                                        Style="{StaticResource FormInput}"
                                         Margin="0,81,0,0" VerticalAlignment="Top" Width="295"/>
 
                             <CheckBox Content="Check In"
@@ -292,10 +296,12 @@
                             <Button Foreground="{StaticResource accent}"
                                     Background="{StaticResource white}"
                                     Content="Finalize Bill"
+                                    Name="FinalizeBill"
+                                    Click="FinalizeBill_Click"
                                     FontWeight="Bold" Margin="10,399,10,10"/>
                         </Grid>
 
-                        <Grid Grid.Column="2" Background="{StaticResource section}" Margin="5">
+                        <Grid Grid.Column="3" Background="{StaticResource section}" Margin="5,5,5,5">
 
 
                             <ComboBox Name="OldReservations" Margin="10,10,10,393"
@@ -325,7 +331,81 @@
                 </TabItem>
 
                 <TabItem Header="Universal Search">
-                    <Grid Background="#FFE5E5E5"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <TextBox Style="{StaticResource TextInput}"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     Name="UniversalQuery" Width="406"/>
+                            <TextBlock Style="{StaticResource Hint}"
+                                       Text="Search" Margin="291,0,0,0" 
+                                       VerticalAlignment="Center" Width="110"/>
+                            <Button Content="Go" HorizontalAlignment="Left"
+                                    Margin="667,0,0,0" Name="Search"
+                                    Click="Search_Click"
+                                    Background="{StaticResource accent}"
+                                    Foreground="{StaticResource white}"
+                                    VerticalAlignment="Center"
+                                    Width="24" Height="24"/>
+                        </Grid>
+                        <DataGrid x:Name="UniversalGrid" Grid.Row="1"/>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Reservations Grid">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="413*"/>
+                            <ColumnDefinition Width="564*"/>
+                        </Grid.ColumnDefinitions>
+                        <DataGrid x:Name="ReservationGrid" Margin="0,0,0,60" Grid.ColumnSpan="2"/>
+                        <Button Content="Save" Margin="8,394,419,10"
+                                    Click="SaveGrid_Click"
+                                    Foreground="{StaticResource white}"
+                                    Background="{StaticResource accent}" Grid.Column="1"/>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Guests Grid">
+                    <Grid>
+                        <DataGrid x:Name="GuestsGrid" Margin="0,0,0,60"/>
+                        <Button Content="Save" Margin="420,394,419,10"
+                                    Click="SaveGrid_Click"
+                                    Foreground="{StaticResource white}"
+                                    Background="{StaticResource accent}"/>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Room Availability">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Style="{StaticResource FormLabel}"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Text="Occupied Rooms"/>
+                        <TextBlock Style="{StaticResource FormLabel}"
+                                   Grid.Column="1"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   Text="Reserved Rooms"/>
+                        <DataGrid Grid.Column="0"
+                                  Grid.Row="1"
+                                  x:Name="OccupiedGrid"/>
+                        <DataGrid Grid.Column="1"
+                                  Grid.Row="1"
+                                  x:Name="ReservedGrid"/>
+                    </Grid>
                 </TabItem>
             </TabControl>
         </Grid>

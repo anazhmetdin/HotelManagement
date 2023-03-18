@@ -12,5 +12,10 @@ namespace DB.Models
         public virtual RoomType RoomType { get; set; }
         public int Floor { get; set; }
         public int Number { get; set; }
+
+        public override string ToString()
+        {
+            return $"{this.Number} ({this.RoomType.Type})";
+        }
     }
 }
