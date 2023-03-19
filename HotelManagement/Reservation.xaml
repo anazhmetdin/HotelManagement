@@ -11,11 +11,6 @@
     <Window.Resources>
         <ResourceDictionary>
 
-            <Style x:Key="all" TargetType="Control">
-                <Setter Property="VerticalAlignment" Value="Top"/>
-                <Setter Property="HorizontalAlignment" Value="Left"/>
-            </Style>
-
             <Style TargetType="CheckBox" BasedOn="{StaticResource all}"/>
 
             <SolidColorBrush x:Key="accent" Color="ForestGreen"/>
@@ -32,28 +27,8 @@
                 </Style.Triggers>
             </Style>
 
-            <Style TargetType="TabItem">
-                <Setter Property="Height" Value="30"/>
-                <Setter Property="Width" Value="120"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="TabItem">
-                            <Grid>
-                                <ContentPresenter ContentSource="Header"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center" />
-                                <Border x:Name="Border" BorderThickness="0 0 0 2"/>
-                            </Grid>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource accent}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <Style.Triggers>
-                </Style.Triggers>
+            <Style TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
+                <Setter Property="BorderBrush" Value="{StaticResource accent}"/>
             </Style>
         </ResourceDictionary>
     </Window.Resources>

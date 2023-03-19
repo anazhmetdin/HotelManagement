@@ -10,8 +10,7 @@
 
     <Window.Resources>
         <SolidColorBrush x:Key="accent" Color="ForestGreen"/>
-        <Style TargetType="TextBlock" BasedOn="{StaticResource FormLabel}"
-               x:Key="BillLabel">
+        <Style TargetType="TextBlock" BasedOn="{StaticResource FormLabel}">
             <Setter Property="FontSize" Value="20"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
         </Style>
@@ -28,33 +27,25 @@
             <Button Style="{StaticResource WindowMinimize}"
                     Margin="528,0,45,353"/>
 
-            <TextBlock Style="{StaticResource BillLabel}"
-                       Text="Room Bill" Margin="0,70,498,0"/>
+            <TextBlock Text="Room Bill" Margin="0,70,498,0"/>
 
-            <TextBlock Style="{StaticResource BillLabel}"
-                       Name="room_bill"
+            <TextBlock Name="room_bill"
                        Text="$0 USD" Margin="0,70,28,0"/>
 
-            <TextBlock Style="{StaticResource BillLabel}"
-                       Text="Food Bill" Margin="0,107,506,0"/>
+            <TextBlock Text="Food Bill" Margin="0,107,506,0"/>
 
-            <TextBlock Style="{StaticResource BillLabel}"
-                       Name="food_bill"
+            <TextBlock Name="food_bill"
                        Text="$0 USD" Margin="0,107,28,0"/>
 
-            <TextBlock Style="{StaticResource BillLabel}"
-                       Text="Tax" Margin="0,149,180,0"/>
+            <TextBlock Text="Tax" Margin="0,149,180,0"/>
 
-            <TextBlock Style="{StaticResource BillLabel}"
-                       Name="tax"
+            <TextBlock Name="tax"
                        Text="$0 USD" Margin="0,149,28,0"/>
 
-            <TextBlock Style="{StaticResource BillLabel}"
-                       FontWeight="Bold"
+            <TextBlock FontWeight="Bold"
                        Text="Total" Margin="0,186,161,0"/>
 
-            <TextBlock Style="{StaticResource BillLabel}"
-                       Name="total"
+            <TextBlock Name="total"
                        Text="$0 USD" Margin="0,186,28,0"/>
 
             <ComboBox Name="old_cards" Margin="10,196,343,150"
@@ -100,7 +91,7 @@
                            Text="CVC"
                            Margin="300,287,0,0"/>
             </Grid>
-            <TextBlock Style="{StaticResource BillLabel}"
+            <TextBlock 
                        x:Name="card_type"
                        HorizontalAlignment="Left"
                        Text="Unknown" Margin="344,284,0,0"/>

@@ -521,12 +521,14 @@ namespace UI
                         OldReservations.Items[OldReservations.SelectedIndex] = comboBoxItem;
                         OldReservations.SelectedIndex = temp;
                     }
+
+                    MessageBox.Show("Reservation Saved Successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Couldn't Save Data, please check that all fields are valid", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (cards != null)
                 {
@@ -564,9 +566,10 @@ namespace UI
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            if (CurrentReservation != null)
+            if (CurrentReservation != null && check_in.IsChecked != true)
             {
                 App.DB.reservations.Remove(CurrentReservation);
+                OldReservations.Items.RemoveAt(OldReservations.SelectedIndex);
 
                 if (App.DB.Entry(CurrentReservation).State == EntityState.Deleted)
                 {
@@ -579,6 +582,12 @@ namespace UI
                 ResetUserInfo();
 
                 App.DB.SaveChanges();
+
+                MessageBox.Show("Reservation Deleted Successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Can't Delete Reservation", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 

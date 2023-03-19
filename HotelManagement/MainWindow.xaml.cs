@@ -27,23 +27,31 @@ namespace HotelManagement
         public MainWindow()
         {
             InitializeComponent();
-            new UI.Reservation().Show();
-            this.Close();
         }
 
         private void SignInBtn_Click(object sender, RoutedEventArgs e)
         {
             SignInBtn.IsEnabled = false;
 
-            if (Username.Text != "" &&  Password.Password != "")
+            if (Username.Text != "" && Password.Password != "")
             {
                 frontend? user;
-                if ((user = App.DB.frontends.Find(Username.Text)) != null) 
+                kitchen? kitchen;
+                if ((user = App.DB.frontends.Find(Username.Text)) != null)
                 {
                     if (user.pass_word == Password.Password)
                     {
-                        UI.Reservation reservation = new UI.Reservation();
+                        UI.Reservation reservation = new();
                         reservation.Show();
+                        this.Close();
+                    }
+                }
+                else if ((kitchen = App.DB.kitchens.Find(Username.Text)) != null)
+                {
+                    if (kitchen.pass_word == Password.Password)
+                    {
+                        UI.Kitchen RoomService = new();
+                        RoomService.Show();
                         this.Close();
                     }
                 }

@@ -8,8 +8,14 @@
         Style="{StaticResource WindowStyle}"
         Title="" Height="450" Width="550">
 
+    <Window.Resources>
+        <ResourceDictionary>
+            <SolidColorBrush x:Key="accent" Color="CadetBlue"/>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Border Style="{StaticResource MainBorder}"
-            BorderBrush="CadetBlue">
+            BorderBrush="{StaticResource accent}">
         <Grid>
             <Label Style="{StaticResource WindowLabel}"
                    Content="Login" Margin="10,10,0,0"/>
@@ -21,6 +27,7 @@
 
             <Grid>
                 <TextBox Style="{StaticResource TextInput}"
+                         BorderBrush="{StaticResource accent}"
                          Name="Username" Margin="164,166,164,244"/>
                 <TextBlock Style="{StaticResource Hint}"
                            Text="Username" Margin="171,172,302,248"/>
@@ -31,6 +38,7 @@
 
             <Grid>
                 <PasswordBox Style="{StaticResource PasswordInput}" 
+                         BorderBrush="{StaticResource accent}"
                              Name="Password" Margin="164,229,164,181"/>
                 <TextBlock Style="{StaticResource Hint}"
                            Text="Password" Margin="171,234,302,186"/>
@@ -39,6 +47,10 @@
             </Grid>
 
             <Button Name="SignInBtn" Content="Sign in" Margin="164,296,164,112"
+                    Background="{StaticResource accent}"
+                    Foreground="White"
+                    FontWeight="Bold"
+                    FontSize="14"
                     Click="SignInBtn_Click"/>
         </Grid>
     </Border>
