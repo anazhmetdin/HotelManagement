@@ -383,21 +383,17 @@ namespace UI
             }
             try
             {
-                if (CurrentReservation != null
-                    && (App.DB.Entry(CurrentReservation).State == EntityState.Unchanged
-                    || App.DB.Entry(CurrentReservation).State == EntityState.Modified))
-                {
-                    App.DB.Entry(CurrentReservation).State = EntityState.Modified;
-                }
-                else
+                if (CurrentReservation == null)
                 {
                     CurrentReservation = new();
                 }
 
                 CurrentReservation.guest = currentGuest;
 
-                if (CurrentReservation.guest != null) { App.DB.Entry(CurrentReservation.guest).State = EntityState.Modified; }
-                else { CurrentReservation.guest = new(); }
+                if (CurrentReservation.guest == null) 
+                { 
+                    CurrentReservation.guest = new();
+                }
 
                 if (temp == null)
                 {
@@ -479,6 +475,7 @@ namespace UI
 
                     CurrentReservation.card = default;
 
+                    var x = App.DB.Entry(CurrentReservation.guest).State;
                     if (App.DB.Entry(CurrentReservation.guest).State == EntityState.Detached)
                     {
                         CurrentReservation.guest.cards = default!;

@@ -97,7 +97,7 @@ namespace UI
                 CVC.Text = Reservation.currentCard.card_cvc;
                 month.Text = Reservation.currentCard.card_exp.Split('/')[0];
                 year.Text = Reservation.currentCard.card_exp.Split('/')[1];
-                payment_type.Text = Reservation.CurrentReservation!.payment_type.ToString();
+                //payment_type.Text = Reservation.CurrentReservation!.payment_type.ToString();
             }
         }
 
@@ -122,7 +122,7 @@ namespace UI
                             Card.card_cvc = CVC.Text;
                             Card.card_exp = month.Text + "/" + year.Text;
 
-                            Reservation.currentGuest!.cards.Add(Card);
+                            //Reservation.currentGuest!.cards.Add(Card);
 
                             Reservation.CurrentReservation!.card = Card;
                             Reservation.CurrentReservation.total_bill = (decimal)(RoomBill + FoodBill + Tax);
