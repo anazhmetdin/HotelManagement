@@ -16,6 +16,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using UI;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagement
 {
@@ -37,7 +39,9 @@ namespace HotelManagement
             {
                 frontend? user;
                 kitchen? kitchen;
-                if ((user = App.DB.frontends.Find(Username.Text)) != null)
+                string sql = "SELECT * FROM frontend WHERE user_name = @username";
+                user = App.DbConnection.QueryFirstOrDefault<frontend>(sql, new { username = Username.Text });
+                if (user != null)
                 {
                     if (user.pass_word == Password.Password)
                     {
@@ -46,9 +50,11 @@ namespace HotelManagement
                         this.Close();
                     }
                 }
-                else if ((kitchen = App.DB.kitchens.Find(Username.Text)) != null)
+                else
                 {
-                    if (kitchen.pass_word == Password.Password)
+                    sql = "SELECT * FROM kitchen WHERE user_name = @username";
+                    kitchen = App.DbConnection.QueryFirstOrDefault<kitchen>(sql, new { username = Username.Text });
+                    if (kitchen != null && kitchen.pass_word == Password.Password)
                     {
                         UI.Kitchen RoomService = new();
                         RoomService.Show();

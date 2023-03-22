@@ -1,5 +1,6 @@
 ﻿using DB.Models;
 using HotelManagement;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Dapper;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace UI
 {
@@ -47,12 +50,27 @@ namespace UI
             Month.SelectionChanged += Day_SelectionChanged;
             Year.SelectionChanged += Day_SelectionChanged;
 
-            foreach (var reservation in App.DB.reservations.Where(r => r.leaving_time >= DateTime.Now).Select(r => new { r.guest.first_name, r.guest.last_name, r.Id, r.arrival_time, r.room.RoomType }))
+            var reservationsList = App.DbConnection.Query(
+                @"SELECT r.Id, g.first_name, g.last_name, r.arrival_time, rt.Type as RoomType
+                  FROM reservation r
+                  INNER JOIN guest g ON r.guestSSN = g.SSN
+                  INNER JOIN rooms rm ON r.roomId = rm.Id
+                  INNER JOIN roomtypes rt ON rm.RoomTypeId = rt.Id
+                  WHERE r.leaving_time >= @Now",
+                new { Now = DateTime.Now });
+
+            foreach (var reservation in reservationsList)
             {
-                OldReservations.Items.Add(new ComboBoxItem() { Tag = reservation.Id, Content = $"{reservation.Id} - {reservation.RoomType.Type} - {reservation.first_name} {reservation.last_name} - {reservation.arrival_time.ToShortDateString()}" });
+                OldReservations.Items.Add(new ComboBoxItem()
+                {
+                    Tag = reservation.Id,
+                    Content = $"{reservation.Id} - {(DB.Models.Type) reservation.RoomType} - {reservation.first_name} {reservation.last_name} - {reservation.arrival_time.ToShortDateString()}"
+                });
             }
 
-            foreach (var type in App.DB.RoomTypes)
+            var roomTypes = App.DbConnection.Query<RoomType>( @"SELECT * FROM RoomTypes" );
+
+            foreach (var type in roomTypes)
             {
                 room_type.Items.Add(new ComboBoxItem() { Tag = type.Id, Content = type.Type });
             }
@@ -66,15 +84,10 @@ namespace UI
             #endregion
 
             #region Grids
-            App.DB.reservations.Include(r=>r.guest).Include(r=>r.card).Include(r=>r.room.RoomType).Load();
-            
-            ReservationGrid.ItemsSource = App.DB.reservations.Local.ToObservableCollection();
             ReservationGrid.Loaded += ReservationGrid_Loaded;
 
-            GuestsGrid.ItemsSource = App.DB.guests.Local.ToObservableCollection();
             GuestsGrid.Loaded += GuestsGrid_Loaded;
 
-            OccupiedGrid.Loaded += OccupiedGrid_Loaded;
             ReservedGrid.Loaded += ReservedGrid_Loaded;
             #endregion
         }
@@ -82,19 +95,40 @@ namespace UI
         #region Grids
         private void ReservedGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            ReservedGrid.ItemsSource = App.DB.reservations.Where(r => !r.check_in && r.arrival_time <= DateTime.Now && r.leaving_time > DateTime.Now)
-                .Select(r => new { r.room.Number, r.room.RoomType.Type, r.Id, r.guest.first_name, r.guest.last_name, r.guest.phone_number }).ToList();
-        }
+            string query = @"SELECT Rooms.Number, RoomTypes.Type, Reservation.Id, Guest.first_name, Guest.last_name, Guest.phone_number,
+                 Reservation.check_in
+                 FROM Reservation 
+                 INNER JOIN Guest ON Reservation.guestSSN = Guest.SSN
+                 INNER JOIN Rooms ON Reservation.RoomId = Rooms.Id 
+                 INNER JOIN RoomTypes ON Rooms.RoomTypeId = RoomTypes.Id 
+                 WHERE Reservation.arrival_time <= @now AND Reservation.leaving_time > @now";
 
-        private void OccupiedGrid_Loaded(object sender, RoutedEventArgs e)
-        {
-            OccupiedGrid.ItemsSource = App.DB.reservations.Where(r => r.check_in && r.arrival_time <= DateTime.Now && r.leaving_time > DateTime.Now)
-                .Select(r => new { r.room.Number, r.room.RoomType.Type, r.Id, r.guest.first_name, r.guest.last_name, r.guest.phone_number }).ToList();
+            var data = App.DbConnection.Query(query, param: new { now = DateTime.Now });
+
+            var result = data.Select(d => new
+            {
+                d.Number,
+                Type = (DB.Models.Type)d.Type,
+                d.Id,
+                d.first_name,
+                d.last_name,
+                d.phone_number,
+                check_in = (bool)d.check_in
+            });
+
+            var reserved = result.Where(r => !r.check_in).ToList();
+            var occupupied = result.Where(r => r.check_in).ToList();
+
+            ReservedGrid.ItemsSource = reserved;
+
+            OccupiedGrid.ItemsSource = occupupied;
         }
 
         private void GuestsGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            GuestsGrid.Items.Refresh();
+            var guests = App.DbConnection.Query<guest>("SELECT * FROM guest");
+            GuestsGrid.ItemsSource = guests;
+
             if (GuestsGrid.Columns.Count > 0)
             {
                 GuestsGrid.Columns[11].Visibility = Visibility.Hidden;
@@ -103,21 +137,40 @@ namespace UI
 
         private void ReservationGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            ReservationGrid.Items.Refresh();
-            if (ReservationGrid.Columns.Count > 0)
-            {
-                ReservationGrid.Columns[0].IsReadOnly = true;
-                ReservationGrid.Columns[1].IsReadOnly = true;
-                ReservationGrid.Columns[2].IsReadOnly = true;
-                ReservationGrid.Columns[3].IsReadOnly = true;
-                ReservationGrid.Columns[9].IsReadOnly = true;
-                ReservationGrid.Columns[16].IsReadOnly = true;
-            }
+            var reservationsList = App.DbConnection.Query<reservation, guest, card, Room, RoomType, reservation>(
+                @"SELECT r.*, g.*, c.*, rm.*, rt.*
+                    FROM Reservation r
+                    INNER JOIN Guest g ON r.GuestSSN = g.SSN
+                    INNER JOIN Cards c ON r.CardId = c.Id
+                    INNER JOIN rooms rm ON r.roomId = rm.Id
+                    INNER JOIN RoomTypes rt ON rm.RoomTypeId = rt.Id",
+                (reservation, guest, card, room, roomType) =>
+                {
+                    reservation.guest = guest;
+                    reservation.card = card;
+                    reservation.room = room;
+                    reservation.room.RoomType = roomType;
+                    return reservation;
+                },
+                splitOn: "Id,SSN,Id,Id,Id");
+
+            ReservationGrid.ItemsSource = reservationsList;
+
+            ReservationGrid.IsReadOnly = true;
+            //if (ReservationGrid.Columns.Count > 0)
+            //{
+            //    ReservationGrid.Columns[0].IsReadOnly = true;
+            //    ReservationGrid.Columns[1].IsReadOnly = true;
+            //    ReservationGrid.Columns[2].IsReadOnly = true;
+            //    ReservationGrid.Columns[3].IsReadOnly = true;
+            //    ReservationGrid.Columns[9].IsReadOnly = true;
+            //    ReservationGrid.Columns[16].IsReadOnly = true;
+            //}
         }
         private void SaveGrid_Click(object sender, RoutedEventArgs e)
         {
-            ReservationGrid.CommitEdit();
-            App.DB.SaveChanges();
+            //ReservationGrid.CommitEdit();
+            //App.DB.SaveChanges();
         }
         #endregion
 
@@ -155,9 +208,16 @@ namespace UI
             long ssn;
             if (SSN.Text.Length == 14 && long.TryParse(SSN.Text, out ssn))
             {
-                currentGuest = App.DB.guests.Include(g => g.cards).FirstOrDefault(c => c.SSN == ssn);
+                currentGuest = App.DbConnection.QueryFirstOrDefault<guest>(
+                    @"SELECT * FROM Guest WHERE SSN = @ssn",
+                    new { ssn });
+
                 if (currentGuest != null)
                 {
+                    currentGuest.cards = App.DbConnection.Query<card>(
+                        @"SELECT * FROM Cards WHERE GuestSSN = @ssn",
+                        new { ssn }).ToList();
+
                     FillUserData();
                 }
             }
@@ -263,12 +323,25 @@ namespace UI
             {
                 if (selected.Tag is int tag)
                 {
-                    CurrentReservation = App.DB.reservations.Where(r => r.Id == tag)
-                        .Include(r => r.guest)
-                        .ThenInclude(g => g.cards)
-                        .Include(r => r.room.RoomType)
-                        .Include(r => r.card)
-                        .FirstOrDefault();
+                    CurrentReservation = App.DbConnection.Query<reservation, guest, card, Room, RoomType, reservation>(
+                        @"SELECT r.*, g.*, c.*, rm.*, rt.*
+                          FROM Reservation r
+                          INNER JOIN Guest g ON r.GuestSSN = g.SSN
+                          INNER JOIN Cards c ON r.CardId = c.Id
+                          INNER JOIN rooms rm ON r.roomId = rm.Id
+                          INNER JOIN RoomTypes rt ON rm.RoomTypeId = rt.Id
+                          WHERE r.Id = @id",
+                        (reservation, guest, card, room, roomType) =>
+                        {
+                            reservation.guest = guest;
+                            reservation.card = card;
+                            reservation.room = room;
+                            reservation.room.RoomType = roomType;
+                            return reservation;
+                        },
+                        new { id = tag },
+                        splitOn: "SSN,Id,Id,Id").FirstOrDefault();
+
                     if (CurrentReservation != null)
                     {
                         currentGuest = CurrentReservation.guest;
@@ -301,14 +374,17 @@ namespace UI
 
                 if (selected.Tag is int tag)
                 {
-                    RoomType? roomType = App.DB.RoomTypes.Find(tag);
+                    var roomType = App.DbConnection.QueryFirstOrDefault<RoomType>(
+                        @"SELECT * FROM RoomTypes WHERE Id = @tag",
+                        new { tag }
+                    );
+
                     if (roomType != null)
                     {
                         int index = number_guest.SelectedIndex;
-
                         int max = roomType.Capacity;
-
                         index = Math.Min(index, max);
+
                         for (int i = 1; i <= max; i++)
                         {
                             number_guest.Items.Add(new ComboBoxItem() { Content = i });
@@ -316,12 +392,17 @@ namespace UI
 
                         number_guest.SelectedIndex = index;
 
-                        foreach (var f in App.DB.Rooms.Where(r => r.RoomType == roomType).GroupBy(r => r.Floor))
+                        var floors = App.DbConnection.QueryAsync<int>(
+                            @"SELECT DISTINCT Floor FROM Rooms WHERE RoomTypeId = @roomTypeId",
+                            new { roomTypeId = roomType.Id }
+                        ).Result.ToList();
+
+                        foreach (var floorNumber in floors)
                         {
-                            floor.Items.Add(new ComboBoxItem() { Tag = f.Key, Content = f.Key });
+                            floor.Items.Add(new ComboBoxItem() { Tag = floorNumber, Content = floorNumber });
                         }
                     }
-                    
+
                     floor.SelectedIndex = 0;
                     number_guest.SelectedIndex = 0;
                 }
@@ -343,7 +424,12 @@ namespace UI
 
                 if (selected.Tag is int tag && roomType.Tag is int typeID)
                 {
-                    foreach (var room in App.DB.Rooms.Where(r => r.Floor == tag && r.RoomType.Id == typeID).ToList())
+                    var rooms = App.DbConnection.Query<Room>(
+                        "SELECT * FROM Rooms WHERE Floor = @Floor AND RoomTypeId = @RoomTypeId",
+                        new { Floor = tag, RoomTypeId = typeID }
+                    ).ToList();
+
+                    foreach (var room in rooms)
                     {
                         if (IsRoomAvailable(room, arrival_time.SelectedDate, leaving_time.SelectedDate))
                         {
@@ -362,7 +448,12 @@ namespace UI
 
             int currentID = CurrentReservation?.Id??-1;
 
-            return !App.DB.reservations.Any(r => r.Id != currentID && r.room.Id == room.Id && r.arrival_time < leaving && arrival < r.leaving_time);
+            var existingReservations = App.DbConnection.Query(
+                "SELECT Id, RoomId, Arrival_Time, Leaving_Time FROM Reservation WHERE Id != @CurrentId AND RoomId = @RoomId AND Arrival_Time < @Leaving AND @Arrival < Leaving_Time",
+                new { CurrentId = currentID, RoomId = room.Id, Arrival = arrival, Leaving = leaving }
+            ).ToList();
+
+            return !existingReservations.Any();
         }
 
         private void arrival_time_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -405,7 +496,7 @@ namespace UI
                     CurrentReservation.total_bill = temp.total_bill;
                     CurrentReservation.food_bill = temp.food_bill;
                     CurrentReservation.payment_type = temp.payment_type;
-                    CurrentReservation.guest.cards.Add(temp.card);
+                    //CurrentReservation.guest.cards.Add(temp.card);
                 }
 
                 //if (CurrentReservation.room != null) { App.DB.Entry(CurrentReservation.room).State = EntityState.Modified; }
@@ -428,7 +519,18 @@ namespace UI
                 CurrentReservation.guest.zip_code = zip_code.Text;
 
                 CurrentReservation.number_guest = Int32.Parse(number_guest.Text);
-                CurrentReservation.room = App.DB.Rooms.Where(r => r.Number == Int32.Parse(room_number.Text)).FirstOrDefault();
+                
+                CurrentReservation.room = CurrentReservation.room = App.DbConnection
+                    .QueryFirstOrDefault<Room>(@"SELECT * FROM Rooms
+                        WHERE Number = @Number",
+                    new { Number = Int32.Parse(room_number.Text) });
+
+                CurrentReservation.room.RoomType = App.DbConnection
+                    .QueryFirstOrDefault<RoomType>(@"SELECT * FROM Roomtypes rt
+                        inner join rooms r on r.roomtypeid = rt.id
+                        WHERE r.id = @id",
+                    new { id = CurrentReservation.room.Id});
+
                 CurrentReservation.arrival_time = arrival_time.SelectedDate ?? DateTime.Now;
                 CurrentReservation.leaving_time = leaving_time.SelectedDate ?? DateTime.Now.AddDays(1);
 
@@ -475,31 +577,25 @@ namespace UI
 
                     CurrentReservation.card = default;
 
-                    var x = App.DB.Entry(CurrentReservation.guest).State;
                     if (App.DB.Entry(CurrentReservation.guest).State == EntityState.Detached)
                     {
                         CurrentReservation.guest.cards = default!;
-                        App.DB.guests.Add(CurrentReservation.guest);
+                        App.DB.Attach(CurrentReservation.guest);
+                        App.DB.guests.Update(CurrentReservation.guest);
                         App.DB.SaveChanges();
                         CurrentReservation.guest.cards = cards;
                     }
                     else
                     {
+                        App.DB.Attach(CurrentReservation.guest);
                         App.DB.Update(CurrentReservation.guest);
-                        App.DB.SaveChanges();
-                    }
-
-                    CurrentReservation.card = Card;
-
-                    if (CurrentReservation.card != null)
-                    {
-                        App.DB.Update(CurrentReservation.card);
                         App.DB.SaveChanges();
                     }
 
                     App.DB.Update(CurrentReservation);
                     App.DB.SaveChanges();
 
+                    App.DbConnection.Execute("UPDATE reservation r set r.cardID = @id where r.id = @rid", new { currentCard?.Id, rid = CurrentReservation.Id });
 
                     ComboBoxItem comboBoxItem = new ComboBoxItem()
                     {
@@ -523,7 +619,7 @@ namespace UI
                 }
 
             }
-            catch
+            catch (Exception ex)
             {
                 MessageBox.Show("Couldn't Save Data, please check that all fields are valid", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
@@ -544,15 +640,19 @@ namespace UI
 
         void FixEntity(dynamic entity)
         {
-            if (App.DB.Entry(entity).State == EntityState.Added)
+            try
             {
-                App.DB.Entry(entity).State = EntityState.Detached;
+                if (App.DB.Entry(entity).State == EntityState.Added)
+                {
+                    App.DB.Entry(entity).State = EntityState.Detached;
+                }
+                else
+                {
+                    App.DB.Entry(entity).Reload();
+                    FillReservationData();
+                }
             }
-            else
-            {
-                App.DB.Entry(entity).Reload();
-                FillReservationData();
-            }
+            catch { }
         }
 
         private void New_Click(object sender, RoutedEventArgs e)

@@ -1,8 +1,10 @@
 ﻿using DB.Context;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,6 +19,7 @@ namespace HotelManagement
     public partial class App : Application
     {
         public static HotelContext DB { get; set; } = new HotelContext();
+        public static DbConnection DbConnection { get; set; } = DB.Database.GetDbConnection();
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);

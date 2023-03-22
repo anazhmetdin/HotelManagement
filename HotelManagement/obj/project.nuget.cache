@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "f6Cpxwr+D+ecgWOxe9suYuZYK1H11ixUj6mUL7RgmZ9L7QrE2ioY5TF5/RvhKP4R+AJi3eV7/G6l15DOLqu9eQ==",
+  "dgSpecHash": "+NWuhLSG0fYM7o+TAFF252UU+gYd07RKK0cw/IcWXjt6xf1ze/1+FSElV9N7VCoCCnQipKNbn0BiDd0uchM7ew==",
   "success": true,
   "projectFilePath": "F:\\study\\iti\\ITI_courses\\DOTNET\\EFCore\\HotelProject\\HotelManagement\\HotelManagement\\UI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\negm\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
+    "C:\\Users\\negm\\.nuget\\packages\\dapper\\2.0.123\\dapper.2.0.123.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\fody\\6.6.4\\fody.6.6.4.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\negm\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
