@@ -570,13 +570,27 @@ namespace UI
                 int id = CurrentReservation?.Id ?? -1;
                 if (SyncInfo() && CurrentReservation != null)
                 {
-                    if (GuestManager.Update(currentGuest!, out long gid)
-                        && (CardManager.Update(currentCard!, out long cid) || true)
-                        && ReservationManager.Update(CurrentReservation, out long rid))
+                    if (GuestManager.Update(currentGuest!, out long gid))
                     {
                         currentGuest!.SSN = gid;
-                        if (currentCard != null) currentCard.Id = (int) cid;
-                        CurrentReservation.Id = (int) rid;
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
+
+                    if (CardManager.Update(currentCard!, out long cid))
+                    {
+                        currentCard.Id = (int)cid;
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
+
+                    if (ReservationManager.Update(CurrentReservation, out long rid))
+                    {
+                        CurrentReservation.Id = (int)rid;
                     }
                     else
                     {
