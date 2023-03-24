@@ -1,4 +1,6 @@
-﻿using DB.Models;
+﻿using Dapper;
+using DB.Manager;
+using DB.Models;
 using HotelManagement;
 using System;
 using System.Collections.Generic;
@@ -83,7 +85,7 @@ namespace UI
             {
                 if (selected.Tag is int tag)
                 {
-                    Reservation.currentCard = App.DB.cards.Find(tag);
+                    Reservation.currentCard = CardManager.GetByID(tag);
                     PopulateCardInfo();
                 }
             }
@@ -112,17 +114,20 @@ namespace UI
                         if (Math.Round(total_payed, 2) !=  0)
                         {
                             card Card = new();
-                        
+
+                            var x = CardManager.GetALL();
+
                             if (old_cards.SelectedIndex > 0)
-                                Card = App.DB.cards.FirstOrDefault(c=> c.guest.SSN == Reservation.currentGuest!.SSN
+                                Card = CardManager.GetALL().First(c=> c.guestSSN == Reservation.currentGuest!.SSN
                                     && c.card_number == (string)(old_cards.SelectedItem as ComboBoxItem)!.Content) ?? Card;
 
                             Card.card_number = card_number.Text;
                             Card.card_type = card_type.Text;
                             Card.card_cvc = CVC.Text;
                             Card.card_exp = month.Text + "/" + year.Text;
+                            Card.guestSSN = Reservation.currentGuest!.SSN;
 
-                            //Reservation.currentGuest!.cards.Add(Card);
+                            Reservation.currentGuest!.cards.Add(Card);
 
                             Reservation.CurrentReservation!.card = Card;
                             Reservation.CurrentReservation.total_bill = (decimal)(RoomBill + FoodBill + Tax);

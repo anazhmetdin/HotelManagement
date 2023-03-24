@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DB.Models;
 
@@ -15,10 +16,16 @@ public partial class reservation
 {
     public int Id { get; set; }
 
+    [ForeignKey("guest")]
+    public long guestSSN { get; set; }
     public virtual guest guest { get; set; }
 
+    [ForeignKey("card")]
+    public int? cardId { get; set; } = null;
     public virtual card card { get; set; }
 
+    [ForeignKey("room")]
+    public int roomId { get; set; }
     public virtual Room room { get; set; }
 
     public int number_guest { get; set; }

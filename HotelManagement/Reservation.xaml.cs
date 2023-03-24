@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Dapper;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using DB.Manager;
 
 namespace UI
 {
@@ -323,11 +324,12 @@ namespace UI
             {
                 if (selected.Tag is int tag)
                 {
+                    room_type.SelectedIndex = 0;
                     CurrentReservation = App.DbConnection.Query<reservation, guest, card, Room, RoomType, reservation>(
                         @"SELECT r.*, g.*, c.*, rm.*, rt.*
                           FROM Reservation r
                           INNER JOIN Guest g ON r.GuestSSN = g.SSN
-                          INNER JOIN Cards c ON r.CardId = c.Id
+                          LEFT JOIN Cards c ON r.CardId = c.Id
                           INNER JOIN rooms rm ON r.roomId = rm.Id
                           INNER JOIN RoomTypes rt ON rm.RoomTypeId = rt.Id
                           WHERE r.Id = @id",
@@ -355,7 +357,7 @@ namespace UI
 
         private void room_type_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (floor != null)
+            if (floor != null && room_type.SelectedItem != null)
             {
                 var temp = number_guest.Items[0];
                 number_guest.Items.Clear();
@@ -411,7 +413,7 @@ namespace UI
 
         private void floor_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (room_number != null)
+            if (room_number != null && floor.SelectedItem != null)
             {
                 var temp = room_number.Items[0];
                 room_number.Items.Clear();
@@ -496,7 +498,7 @@ namespace UI
                     CurrentReservation.total_bill = temp.total_bill;
                     CurrentReservation.food_bill = temp.food_bill;
                     CurrentReservation.payment_type = temp.payment_type;
-                    //CurrentReservation.guest.cards.Add(temp.card);
+                    CurrentReservation.guest.cards.Add(temp.card);
                 }
 
                 //if (CurrentReservation.room != null) { App.DB.Entry(CurrentReservation.room).State = EntityState.Modified; }
@@ -523,7 +525,8 @@ namespace UI
                 CurrentReservation.room = CurrentReservation.room = App.DbConnection
                     .QueryFirstOrDefault<Room>(@"SELECT * FROM Rooms
                         WHERE Number = @Number",
-                    new { Number = Int32.Parse(room_number.Text) });
+                    new { Number = (int)((ComboBoxItem)room_number.SelectedItem).Tag });
+                CurrentReservation.roomId = CurrentReservation.room.Id;
 
                 CurrentReservation.room.RoomType = App.DbConnection
                     .QueryFirstOrDefault<RoomType>(@"SELECT * FROM Roomtypes rt
@@ -562,40 +565,23 @@ namespace UI
 
         private void SaveData()
         {
-            List<card>? cards = null;
-            card? Card = null;
             try
             {
-                bool added = false;
-
+                int id = CurrentReservation?.Id ?? -1;
                 if (SyncInfo() && CurrentReservation != null)
                 {
-                    added = App.DB.Entry(CurrentReservation).State == EntityState.Added;
-
-                    cards = CurrentReservation.guest.cards;
-                    Card = CurrentReservation.card;
-
-                    CurrentReservation.card = default;
-
-                    if (App.DB.Entry(CurrentReservation.guest).State == EntityState.Detached)
+                    if (GuestManager.Update(currentGuest!, out long gid)
+                        && (CardManager.Update(currentCard!, out long cid) || true)
+                        && ReservationManager.Update(CurrentReservation, out long rid))
                     {
-                        CurrentReservation.guest.cards = default!;
-                        App.DB.Attach(CurrentReservation.guest);
-                        App.DB.guests.Update(CurrentReservation.guest);
-                        App.DB.SaveChanges();
-                        CurrentReservation.guest.cards = cards;
+                        currentGuest!.SSN = gid;
+                        if (currentCard != null) currentCard.Id = (int) cid;
+                        CurrentReservation.Id = (int) rid;
                     }
                     else
                     {
-                        App.DB.Attach(CurrentReservation.guest);
-                        App.DB.Update(CurrentReservation.guest);
-                        App.DB.SaveChanges();
+                        throw new Exception();
                     }
-
-                    App.DB.Update(CurrentReservation);
-                    App.DB.SaveChanges();
-
-                    App.DbConnection.Execute("UPDATE reservation r set r.cardID = @id where r.id = @rid", new { currentCard?.Id, rid = CurrentReservation.Id });
 
                     ComboBoxItem comboBoxItem = new ComboBoxItem()
                     {
@@ -603,8 +589,8 @@ namespace UI
                         IsSelected = true,
                         Content = $"{CurrentReservation.Id} - {CurrentReservation.room!.RoomType.Type} - {CurrentReservation.guest.first_name} {CurrentReservation.guest.last_name} - {CurrentReservation.arrival_time.ToShortDateString()}"
                     };
-
-                    if (added)
+                    
+                    if (id != CurrentReservation.Id)
                     {
                         OldReservations.Items.Add(comboBoxItem);
                     }
@@ -623,18 +609,9 @@ namespace UI
             {
                 MessageBox.Show("Couldn't Save Data, please check that all fields are valid", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
-                if (cards != null)
-                {
-                    CurrentReservation!.guest.cards = cards;
-                }
-                if (Card != null)
-                {
-                    CurrentReservation!.card = Card;
-                }
-
-                FixEntity(CurrentReservation!);
-                FixEntity(CurrentReservation!.guest!);
-                FixEntity(CurrentReservation!.card!);
+                //FixEntity(CurrentReservation!);
+                //FixEntity(CurrentReservation!.guest!);
+                //FixEntity(CurrentReservation!.card!);
             }
         }
 
@@ -665,20 +642,18 @@ namespace UI
         {
             if (CurrentReservation != null && check_in.IsChecked != true)
             {
-                App.DB.reservations.Remove(CurrentReservation);
+                if (!ReservationManager.Delete(CurrentReservation.Id))
+                {
+                    throw new Exception();
+                }
+
                 OldReservations.Items.RemoveAt(OldReservations.SelectedIndex);
 
-                if (App.DB.Entry(CurrentReservation).State == EntityState.Deleted)
-                {
-                    OldReservations.Items.RemoveAt(OldReservations.SelectedIndex);
-                    OldReservations.SelectedIndex = 0;
-                    CurrentReservation = null;
-                }
+                OldReservations.SelectedIndex = 0;
+                CurrentReservation = null;
 
                 ResetReservationData();
                 ResetUserInfo();
-
-                App.DB.SaveChanges();
 
                 MessageBox.Show("Reservation Deleted Successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }

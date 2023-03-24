@@ -1,4 +1,5 @@
 ﻿using DB.Context;
+using DB.Manager;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,10 @@ namespace HotelManagement
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            CardManager.Init(DbConnection);
+            GuestManager.Init(DbConnection);
+            ReservationManager.Init(DbConnection);
 
             EventManager.RegisterClassHandler(typeof(Window), Window.MouseDownEvent,
                 new RoutedEventHandler(Window_MouseDown));
